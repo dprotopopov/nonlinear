@@ -1,10 +1,10 @@
-﻿Сборка начата 08.08.2015 17:06:41.
+﻿Сборка начата 08.08.2015 18:18:34.
      1>Проект "D:\Projects\nonlinear\cudadichotomy\cudadichotomy.vcxproj" в узле 2 (целевые объекты Build).
      1>AddCudaCompileDeps:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\cl.exe /E /nologo /showIncludes /TP /D__CUDACC__ /DWIN32 /D_DEBUG /D_CONSOLE /D_MBCS /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" /I. /FIcuda_runtime.h /c D:\Projects\nonlinear\cudadichotomy\cudadichotomy.cu 
        CudaBuild:
          Compiling CUDA source file cudadichotomy.cu...
-         cmd.exe /C "R:\Temp\tmp59ae9474b1be40dd93c5b41d81446292.cmd"
+         cmd.exe /C "R:\Temp\tmp42a2f77d711848fc92707afad9abd82f.cmd"
          "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2012 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile -cudart static  -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\cudadichotomy.cu.obj "D:\Projects\nonlinear\cudadichotomy\cudadichotomy.cu"
          
          D:\Projects\nonlinear\cudadichotomy>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2012 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile -cudart static  -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\cudadichotomy.cu.obj "D:\Projects\nonlinear\cudadichotomy\cudadichotomy.cu" 
@@ -24,4 +24,4 @@
 
 Построение успешно завершено.
 
-Затраченное время: 00:00:29.57
+Затраченное время: 00:00:30.24

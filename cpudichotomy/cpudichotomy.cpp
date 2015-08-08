@@ -217,11 +217,11 @@ int main(int argc, char* argv[])
 {
 	// http://stackoverflow.com/questions/2236197/what-is-the-easiest-way-to-initialize-a-stdvector-with-hardcoded-elements
 	unsigned n=_n;
+	double e=_e;
 	std::vector<unsigned> m(_m, _m + sizeof(_m) / sizeof(_m[0]) );
 	std::vector<double> a(_a, _a + sizeof(_a) / sizeof(_a[0]) );
 	std::vector<double> b(_b, _b + sizeof(_b) / sizeof(_b[0]) );
 	std::vector<check_func *> f(_f, _f + sizeof(_f) / sizeof(_f[0]) );
-	double e=_e;
 
 	char * input_file_name = NULL;
 	char * output_file_name = NULL;

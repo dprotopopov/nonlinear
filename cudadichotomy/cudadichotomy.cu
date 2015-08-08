@@ -243,11 +243,11 @@ int main(int argc, char* argv[])
   // http://stackoverflow.com/questions/2236197/what-is-the-easiest-way-to-initialize-a-stdvector-with-hardcoded-elements
 
 	unsigned n=_n;
-	thrust::device_vector<unsigned> m(_m, _m + sizeof(_m) / sizeof(_m[0]) );
-	thrust::device_vector<double> a(_a, _a + sizeof(_a) / sizeof(_a[0]) );
-	thrust::device_vector<double> b(_b, _b + sizeof(_b) / sizeof(_b[0]) );
-	thrust::device_vector<check_func *> f(_f, _f + sizeof(_f) / sizeof(_f[0]) );
 	double e=_e;
+	thrust::host_vector<unsigned> hm(_m, _m + sizeof(_m) / sizeof(_m[0]) );
+	thrust::host_vector<double> ha(_a, _a + sizeof(_a) / sizeof(_a[0]) );
+	thrust::host_vector<double> hb(_b, _b + sizeof(_b) / sizeof(_b[0]) );
+	thrust::host_vector<check_func *> hf(_f, _f + sizeof(_f) / sizeof(_f[0]) );
 
 	char * input_file_name = NULL;
 	char * output_file_name = NULL;
@@ -279,16 +279,16 @@ int main(int argc, char* argv[])
 		else if(strcmp(argv[i],"-e")==0) e = atof(argv[++i]);
 		else if(strcmp(argv[i],"-m")==0) {
 			std::istringstream ss(argv[++i]);
-			m.clear();
-			for(unsigned i=0;i<n;i++) m.push_back(atoi(argv[++i]));
+			hm.clear();
+			for(unsigned i=0;i<n;i++) hm.push_back(atoi(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-a")==0) {
-			a.clear();
-			for(unsigned i=0;i<n;i++) a.push_back(atof(argv[++i]));
+			ha.clear();
+			for(unsigned i=0;i<n;i++) ha.push_back(atof(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-b")==0) {
-			b.clear();
-			for(unsigned i=0;i<n;i++) b.push_back(atof(argv[++i]));
+			hb.clear();
+			for(unsigned i=0;i<n;i++) hb.push_back(atof(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-input")==0) input_file_name = argv[++i];
 		else if(strcmp(argv[i],"-output")==0) output_file_name = argv[++i];
@@ -297,47 +297,55 @@ int main(int argc, char* argv[])
 	if(input_file_name!=NULL) freopen(input_file_name,"r",stdin);
 	if(output_file_name!=NULL) freopen(output_file_name,"w",stdout);
 
-	int major = THRUST_MAJOR_VERSION;
-	int minor = THRUST_MINOR_VERSION;
-
-	std::cout << "Thrust v" << major << "." << minor << std::endl;
 
 	if(ask_mode == ASK)
 	{
 		//  std::cout << "Введите размерность пространства:"<< std::endl; std::cin >> n;
 
 		std::cout << "Введите число сегментов по каждому из измерений m[" << n << "]:"<< std::endl;
-		m.clear();
+		hm.clear();
 		for(unsigned i=0;i<n;i++)
 		{
-			int x; std::cin >> x;
-			m.push_back(x);
+			int x; 
+			std::cin >> x;
+			hm.push_back(x);
 		}
 
 		std::cout << "Введите минимальные координаты по каждому из измерений a[" << n << "]:"<< std::endl;
-		a.clear();
+		ha.clear();
 		for(unsigned i=0;i<n;i++)
 		{
-			double x; std::cin >> x;
-			a.push_back(x);
+			double x; 
+			std::cin >> x;
+			ha.push_back(x);
 		}
 
 		std::cout << "Введите максимальные координаты по каждому из измерений b[" << n << "]:"<< std::endl;
-		b.clear();
+		hb.clear();
 		for(unsigned i=0;i<n;i++)
 		{
-			double x; std::cin >> x;
-			b.push_back(x);
+			double x; 
+			std::cin >> x;
+			hb.push_back(x);
 		}
 
 		std::cout << "Введите точность вычислений:"<< std::endl; std::cin >> e;
 	}
 
+	int major = THRUST_MAJOR_VERSION;
+	int minor = THRUST_MINOR_VERSION;
+
+	std::cout << "Thrust v" << major << "." << minor << std::endl;
 	std::cout << "Размерность пространства : " << n << std::endl;
-	std::cout << "Число сегментов          : "; for(unsigned i=0;i<m.size();i++) std::cout << m[i] << " "; std::cout << std::endl; 
-	std::cout << "Минимальные координаты   : "; for(unsigned i=0;i<a.size();i++) std::cout << a[i] << " "; std::cout << std::endl; 
-	std::cout << "Максимальные координаты  : "; for(unsigned i=0;i<b.size();i++) std::cout << b[i] << " "; std::cout << std::endl; 
+	std::cout << "Число сегментов          : "; for(unsigned i=0;i<hm.size();i++) std::cout << hm[i] << " "; std::cout << std::endl; 
+	std::cout << "Минимальные координаты   : "; for(unsigned i=0;i<ha.size();i++) std::cout << ha[i] << " "; std::cout << std::endl; 
+	std::cout << "Максимальные координаты  : "; for(unsigned i=0;i<hb.size();i++) std::cout << hb[i] << " "; std::cout << std::endl; 
 	std::cout << "Точность вычислений      : " << e << std::endl;
+
+	thrust::device_vector<unsigned> m(hm);
+	thrust::device_vector<double> a(ha);
+	thrust::device_vector<double> b(hb);
+	thrust::device_vector<check_func *> f(hf);
 
 	for(unsigned i=0;i<m.size();i++) assert(m[i]>2);
 
@@ -367,7 +375,10 @@ int main(int argc, char* argv[])
 			y=y1;
 		}
 
-		if(trace_mode==TRACE) for(unsigned i=0;i<x.size();i++) std::cout << x[i] << " "; 
+		if(trace_mode==TRACE) {
+			thrust::host_vector<double> hx(x);
+			for(unsigned i=0;i<hx.size();i++) std::cout << hx[i] << " "; 
+		}
 		if(trace_mode==TRACE) std::cout << "-> " << y << std::endl; 
 
 		if(delta(a,b)<e) break;

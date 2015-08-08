@@ -1,1 +1,5 @@
-2015/08/06-05:00:51.323 33ac Delete type=3 #1
+2015/08/08-18:05:29.529 33ac Recovering log #3
+2015/08/08-18:05:29.529 33ac Level-0 table #5: started
+2015/08/08-18:05:29.591 33ac Level-0 table #5: 29474 bytes OK
+2015/08/08-18:05:29.732 33ac Delete type=0 #3
+2015/08/08-18:05:29.732 33ac Delete type=3 #2
