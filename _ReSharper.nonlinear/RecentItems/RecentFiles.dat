@@ -1,39 +1,42 @@
 ﻿<RecentFiles>
   <RecentFiles>
-    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="5775" fromTop="0" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="13608" fromTop="289" />
-    <File id="095EBB84-A4D6-40B4-8056-E0926F97D6C8/f:cudadichotomy.cu" caret="13712" fromTop="384" />
+    <File id="095EBB84-A4D6-40B4-8056-E0926F97D6C8/f:cudadichotomy.cu" caret="12689" fromTop="156" />
+    <File id="11DD8066-72B1-43BE-84BE-1674DA572346/f:cpucyclic.cpp" caret="10991" fromTop="12" />
+    <File id="67CAE684-E25C-44E5-B172-21A10D6A44D0/f:cudacyclic.cu" caret="0" fromTop="0" />
+    <File id="4C1C2823-96AD-4811-B18D-6D43A29D350B/f:cudacyclic2.cu" caret="14743" fromTop="29" />
+    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="13699" fromTop="18" />
+    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="0" fromTop="0" />
   </RecentFiles>
   <RecentEdits>
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="3943" fromTop="27" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="11758" fromTop="13" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="6688" fromTop="11" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="7492" fromTop="8" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="6659" fromTop="8" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="6950" fromTop="14" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="7065" fromTop="21" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="13610" fromTop="25" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="12116" fromTop="12" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="13610" fromTop="22" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="13610" fromTop="17" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="1664" fromTop="11" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="6191" fromTop="11" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="14195" fromTop="14" />
-    <File id="095EBB84-A4D6-40B4-8056-E0926F97D6C8/f:cudadichotomy.cu" caret="13883" fromTop="18" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="12865" fromTop="16" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="12825" fromTop="16" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="6427" fromTop="17" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="6290" fromTop="9" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="5865" fromTop="17" />
-    <File id="095EBB84-A4D6-40B4-8056-E0926F97D6C8/f:cudadichotomy.cu" caret="7584" fromTop="9" />
-    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="5642" fromTop="9" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="11826" fromTop="0" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="12921" fromTop="3" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="13610" fromTop="19" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="8111" fromTop="10" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="13610" fromTop="17" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="13605" fromTop="11" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="13083" fromTop="4" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="13422" fromTop="12" />
+    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="8792" fromTop="3" />
+    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="8672" fromTop="6" />
+    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="8552" fromTop="2" />
+    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="9435" fromTop="14" />
+    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="9564" fromTop="18" />
+    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="9643" fromTop="22" />
+    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="9773" fromTop="26" />
+    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="9852" fromTop="27" />
+    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="10677" fromTop="23" />
+    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="10671" fromTop="21" />
+    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="10526" fromTop="15" />
+    <File id="095EBB84-A4D6-40B4-8056-E0926F97D6C8/f:cudadichotomy.cu" caret="12543" fromTop="16" />
+    <File id="095EBB84-A4D6-40B4-8056-E0926F97D6C8/f:cudadichotomy.cu" caret="12777" fromTop="19" />
+    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="11828" fromTop="14" />
+    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="10378" fromTop="18" />
+    <File id="11DD8066-72B1-43BE-84BE-1674DA572346/f:cpucyclic.cpp" caret="7030" fromTop="12" />
+    <File id="11DD8066-72B1-43BE-84BE-1674DA572346/f:cpucyclic.cpp" caret="9031" fromTop="19" />
+    <File id="11DD8066-72B1-43BE-84BE-1674DA572346/f:cpucyclic.cpp" caret="10035" fromTop="23" />
+    <File id="11DD8066-72B1-43BE-84BE-1674DA572346/f:cpucyclic.cpp" caret="10836" fromTop="16" />
+    <File id="67CAE684-E25C-44E5-B172-21A10D6A44D0/f:cudacyclic.cu" caret="12757" fromTop="8" />
+    <File id="67CAE684-E25C-44E5-B172-21A10D6A44D0/f:cudacyclic.cu" caret="13063" fromTop="11" />
+    <File id="67CAE684-E25C-44E5-B172-21A10D6A44D0/f:cudacyclic.cu" caret="13315" fromTop="24" />
+    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="13699" fromTop="18" />
+    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="12945" fromTop="6" />
+    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="11692" fromTop="15" />
+    <File id="11DD8066-72B1-43BE-84BE-1674DA572346/f:cpucyclic.cpp" caret="10578" fromTop="17" />
+    <File id="4C1C2823-96AD-4811-B18D-6D43A29D350B/f:cudacyclic2.cu" caret="14008" fromTop="8" />
+    <File id="4C1C2823-96AD-4811-B18D-6D43A29D350B/f:cudacyclic2.cu" caret="13945" fromTop="17" />
+    <File id="4C1C2823-96AD-4811-B18D-6D43A29D350B/f:cudacyclic2.cu" caret="14729" fromTop="27" />
+    <File id="4C1C2823-96AD-4811-B18D-6D43A29D350B/f:cudacyclic2.cu" caret="14452" fromTop="19" />
   </RecentEdits>
 </RecentFiles>

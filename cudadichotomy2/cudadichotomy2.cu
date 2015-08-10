@@ -371,13 +371,13 @@ int main(int argc, char* argv[])
 	std::cout << "Максимальные координаты  : "; for(unsigned i=0;i<hb.size();i++) std::cout << hb[i] << " "; std::cout << std::endl; 
 	std::cout << "Точность вычислений      : " << e << std::endl;
 
+	for(unsigned i=0;i<hm.size();i++) assert(hm[i]>2);
+
+// Алгоритм
 	thrust::device_vector<unsigned> m(hm);
 	thrust::device_vector<double> a(ha);
 	thrust::device_vector<double> b(hb);
 
-	for(unsigned i=0;i<m.size();i++) assert(m[i]>2);
-
-// Алгоритм
 	unsigned long total=total_of(m);
 
 	// Определим оптимальное разбиения на процессы, нити
@@ -406,21 +406,27 @@ int main(int argc, char* argv[])
 
 	while(true)
 	{
-		kernel<<< blocks, threads >>>(vPtr, tPtr, xPtr, yPtr, ePtr, mPtr, aPtr, bPtr, total, n);
-
-		thrust::host_vector<double> hyArray(yArray);
+		unsigned long total=total_of(m);
 
 		// Находим первую точку в области, заданной ограничениями
+		kernel<<< blocks, threads >>>(vPtr, tPtr, xPtr, yPtr, ePtr, mPtr, aPtr, bPtr, total, n);
 		auto it = thrust::find(eArray.begin(), eArray.end(), true);
+		if(it>=eArray.end())
+		{
+			for(int i=0; i<n; i++) m[i]*=2;
+			continue;
+		}
+
 		int index = thrust::distance(eArray.begin(), it);
-		y=hyArray[index];
+		y=yArray[index];
 		thrust::copy(&xArray[index*n], &xArray[index*n+n], x.begin());
 
 		while((it = thrust::find(it, eArray.end(), true)) < eArray.end())
 		{
 			int index = thrust::distance(eArray.begin(), it++);
-			if(y<hyArray[index]) continue;
-			y=hyArray[index];
+			double y1=yArray[index];
+			if(y<y1) continue;
+			y=yArray[index];
 			thrust::copy(&xArray[index*n], &xArray[index*n+n], x.begin());
 		}
 

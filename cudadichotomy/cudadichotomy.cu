@@ -167,12 +167,12 @@ t_trace_mode trace_mode = TRACE;
 
 /////////////////////////////////////////////////////////
 // Дефолтные значения
-const unsigned _n = 2;
-const unsigned _m[] = {3, 3};
-const double _a[] = {0, 0};
-const double _b[] = {100, 100};
-check_func *_f[]  = {&f1,&f2};
-const double _e=1e-15;
+static const unsigned _n = 2;
+static const unsigned _m[] = {3, 3};
+static const double _a[] = {0, 0};
+static const double _b[] = {100, 100};
+static check_func *_f[]  = {&f1,&f2};
+static const double _e=1e-15;
 
 
 /////////////////////////////////////////////////////////
@@ -342,26 +342,31 @@ int main(int argc, char* argv[])
 	std::cout << "Максимальные координаты  : "; for(unsigned i=0;i<hb.size();i++) std::cout << hb[i] << " "; std::cout << std::endl; 
 	std::cout << "Точность вычислений      : " << e << std::endl;
 
+	for(unsigned i=0;i<hm.size();i++) assert(hm[i]>2);
+
+// Алгоритм
 	thrust::device_vector<unsigned> m(hm);
 	thrust::device_vector<double> a(ha);
 	thrust::device_vector<double> b(hb);
 	thrust::device_vector<check_func *> f(hf);
 
-	for(unsigned i=0;i<m.size();i++) assert(m[i]>2);
-
-// Алгоритм
 	thrust::device_vector<double> x;
 	double y;
-	unsigned long total=total_of(m);
-
 	while(true)
 	{
+		unsigned long total=total_of(m);
+
 		// Находим первую точку в области, заданной ограничениями
 		unsigned long index=0;
 		while(index<total)
 		{
 			x = point_of(vector_of(index++, m), m, a, b);
 			if(check(x,f)) break;
+		}
+		if(index>=total)
+		{
+			for(int i=0; i<n; i++) m[i]*=2;
+			continue;
 		}
 		y=(*w)(x);
 
