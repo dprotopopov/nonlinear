@@ -213,8 +213,8 @@ thrust::device_vector<double> point_of(thrust::device_vector<unsigned> vector,
 												  thrust::device_vector<double> a,
 												  thrust::device_vector<double> b)
 {
-	thrust::device_vector<double> point=a;
-	for(unsigned i=0;i<m.size();i++) point[i]+=(b[i]-a[i])*vector[i]/m[i];
+	thrust::device_vector<double> point(m.size());
+	for(unsigned i=0;i<m.size();i++) point[i]=(a[i]*(m[i]-vector[i])+b[i]*vector[i])/m[i];
 	return point;
 }
 
@@ -261,7 +261,7 @@ int main(int argc, char* argv[])
 	{
 		if(strcmp(argv[i],"-help")==0) 
 		{
-			std::cout << "Алгоритм деления значений аргумента фукции" << std::endl;
+			std::cout << "Алгоритм деления значений аргумента функции" << std::endl;
 			//			std::cout << "\t-n <размерность пространства>" << std::endl;
 			std::cout << "\t-m <число сегментов по каждому из измерений>" << std::endl;
 			std::cout << "\t-a <минимальные координаты по каждому из измерений>" << std::endl;
@@ -392,7 +392,8 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	std::cout << "Точка минимума           : "; for(unsigned i=0;i<x.size();i++) std::cout << x[i] << " "; std::cout << std::endl; 
+	thrust::host_vector<double> hx(x);
+	std::cout << "Точка минимума           : "; for(unsigned i=0;i<hx.size();i++) std::cout << hx[i] << " "; std::cout << std::endl; 
 	std::cout << "Минимальное значение     : " << y << std::endl; 
 	std::cout << "См. https://ru.wikipedia.org/wiki/Дихотомия" << std::endl;
 

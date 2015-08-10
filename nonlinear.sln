@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cpudichotomy", "cpudichotom
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cudadichotomy", "cudadichotomy\cudadichotomy.vcxproj", "{095EBB84-A4D6-40B4-8056-E0926F97D6C8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cudadichotomy2", "cudadichotomy2\cudadichotomy2.vcxproj", "{15AD4D8C-5521-4E5E-A867-398B1A84220B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -27,6 +29,14 @@ Global
 		{095EBB84-A4D6-40B4-8056-E0926F97D6C8}.Release|Win32.Build.0 = Release|Win32
 		{095EBB84-A4D6-40B4-8056-E0926F97D6C8}.Release|x64.ActiveCfg = Release|x64
 		{095EBB84-A4D6-40B4-8056-E0926F97D6C8}.Release|x64.Build.0 = Release|x64
+		{15AD4D8C-5521-4E5E-A867-398B1A84220B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{15AD4D8C-5521-4E5E-A867-398B1A84220B}.Debug|Win32.Build.0 = Debug|Win32
+		{15AD4D8C-5521-4E5E-A867-398B1A84220B}.Debug|x64.ActiveCfg = Debug|x64
+		{15AD4D8C-5521-4E5E-A867-398B1A84220B}.Debug|x64.Build.0 = Debug|x64
+		{15AD4D8C-5521-4E5E-A867-398B1A84220B}.Release|Win32.ActiveCfg = Release|Win32
+		{15AD4D8C-5521-4E5E-A867-398B1A84220B}.Release|Win32.Build.0 = Release|Win32
+		{15AD4D8C-5521-4E5E-A867-398B1A84220B}.Release|x64.ActiveCfg = Release|x64
+		{15AD4D8C-5521-4E5E-A867-398B1A84220B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -187,8 +187,8 @@ std::vector<double> point_of(std::vector<unsigned> vector,
 							 std::vector<double> a,
 							 std::vector<double> b)
 {
-	std::vector<double> point=a;
-	for(unsigned i=0;i<m.size();i++) point[i]+=(b[i]-a[i])*vector[i]/m[i];
+	std::vector<double> point(m.size());
+	for(unsigned i=0;i<m.size();i++) point[i]=(a[i]*(m[i]-vector[i])+b[i]*vector[i])/m[i];
 	return point;
 }
 
@@ -235,7 +235,7 @@ int main(int argc, char* argv[])
 	{
 		if(strcmp(argv[i],"-help")==0) 
 		{
-			std::cout << "Алгоритм деления значений аргумента фукции" << std::endl;
+			std::cout << "Алгоритм деления значений аргумента функции" << std::endl;
 			//			std::cout << "\t-n <размерность пространства>" << std::endl;
 			std::cout << "\t-m <число сегментов по каждому из измерений>" << std::endl;
 			std::cout << "\t-a <минимальные координаты по каждому из измерений>" << std::endl;

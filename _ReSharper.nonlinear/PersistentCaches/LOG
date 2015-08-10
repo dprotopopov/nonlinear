@@ -1,5 +1,5 @@
-2015/08/08-18:05:29.529 33ac Recovering log #3
-2015/08/08-18:05:29.529 33ac Level-0 table #5: started
-2015/08/08-18:05:29.591 33ac Level-0 table #5: 29474 bytes OK
-2015/08/08-18:05:29.732 33ac Delete type=0 #3
-2015/08/08-18:05:29.732 33ac Delete type=3 #2
+2015/08/10-16:36:31.102 1e68 Recovering log #6
+2015/08/10-16:36:31.102 1e68 Level-0 table #8: started
+2015/08/10-16:36:31.212 1e68 Level-0 table #8: 21062 bytes OK
+2015/08/10-16:36:31.356 1e68 Delete type=0 #6
+2015/08/10-16:36:31.357 1e68 Delete type=3 #4
