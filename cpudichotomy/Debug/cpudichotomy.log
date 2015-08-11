@@ -1,13 +1,5 @@
-﻿Сборка начата 11.08.2015 5:02:11.
-     1>Проект "D:\Projects\nonlinear\cpudichotomy\cpudichotomy.vcxproj" в узле 2 (целевые объекты Rebuild).
-     1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt cpudichotomy.cpp
-         cpudichotomy.cpp
-       Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Projects\nonlinear\Debug\cpudichotomy.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Projects\nonlinear\Debug\cpudichotomy.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Projects\nonlinear\Debug\cpudichotomy.lib" /MACHINE:X86 Debug\cpudichotomy.obj
-         cpudichotomy.vcxproj -> D:\Projects\nonlinear\Debug\cpudichotomy.exe
-     1>Построение проекта "D:\Projects\nonlinear\cpudichotomy\cpudichotomy.vcxproj" завершено (целевые объекты Rebuild).
+﻿Сборка начата 11.08.2015 17:11:31.
 
 Построение успешно завершено.
 
-Затраченное время: 00:00:03.51
+Затраченное время: 00:00:00.04

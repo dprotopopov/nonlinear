@@ -38,13 +38,15 @@ using namespace thrust;
 // As a result, Thrust can be utilized in rapid prototyping of CUDA applications, where programmer productivity matters most, as well as in production, where robustness and absolute performance are crucial.
 // Read more at: http://docs.nvidia.com/cuda/thrust/index.html#ixzz3hymTnQwX 
 
-typedef bool (check_func)(thrust::device_vector<double> x); // Профиль проверочной функции
-typedef double (value_func)(thrust::device_vector<double> x); // Профиль искомой функции
+typedef bool (check_func)(thrust::device_vector<double> &x); // Профиль проверочной функции
+typedef double (value_func)(thrust::device_vector<double> &x); // Профиль искомой функции
 
-double delta(thrust::device_vector<double> x,thrust::device_vector<double> y);
-unsigned long total_of(thrust::device_vector<unsigned> m);
-thrust::device_vector<unsigned> vector_of(unsigned long index, thrust::device_vector<unsigned> m);
-thrust::device_vector<double> point_of(thrust::device_vector<unsigned> vector, thrust::device_vector<unsigned> m, thrust::device_vector<double> a, thrust::device_vector<double> b);
+double module(thrust::device_vector<double> &x);
+double delta(thrust::device_vector<double> &x, thrust::device_vector<double> &y);
+unsigned long total_of(thrust::device_vector<size_t> &m);
+void vector_of(thrust::device_vector<unsigned> &vector, unsigned long index, thrust::device_vector<size_t> &m);
+void point_of(thrust::device_vector<double> &point, thrust::device_vector<unsigned> &vector, thrust::device_vector<size_t> &m, thrust::device_vector<double> &a, thrust::device_vector<double> &b);
+bool check(thrust::device_vector<double> &x, thrust::device_vector<check_func *> &f, thrust::device_vector<double> &a, thrust::device_vector<double> &b);
 
 template <typename T>
 struct inc_functor { 
@@ -113,10 +115,10 @@ struct max_functor {
 
 /////////////////////////////////////////////////////////
 // Набор проверочных функций
-bool f1(thrust::device_vector<double> x)
+bool f1(thrust::device_vector<double> &x)
 {
-	const double _c[] = {1, 1};
-	const double b = 16;
+	static const double _c[] = {0, 0};
+	static const double b = 500;
 
 	thrust::device_vector<double> c(_c, _c + sizeof(_c) / sizeof(_c[0]) );
 	thrust::device_vector<double> sub(thrust::max(x.size(),c.size()));
@@ -125,12 +127,12 @@ bool f1(thrust::device_vector<double> x)
 	thrust::transform(x.begin(), x.end(), c.begin(), sub.begin(), sub_functor<double>());
 	thrust::transform(sub.begin(), sub.end(), square.begin(), square_functor<double>());
 	double y=thrust::reduce(square.begin(), square.end(), 0.0, add_functor<double>());
-	return y<b;
+	return y<b*b;
 }
-bool f2(thrust::device_vector<double> x)
+bool f2(thrust::device_vector<double> &x)
 {
-	const double _c[] = {2, 2};
-	const double b = 16;
+	static const double _c[] = {100, 100};
+	static const double b = 500;
 
 	thrust::device_vector<double> c(_c, _c + sizeof(_c) / sizeof(_c[0]) );
 	thrust::device_vector<double> sub(thrust::max(x.size(),c.size()));
@@ -139,23 +141,41 @@ bool f2(thrust::device_vector<double> x)
 	thrust::transform(x.begin(), x.end(), c.begin(), sub.begin(), sub_functor<double>());
 	thrust::transform(sub.begin(), sub.end(), square.begin(), square_functor<double>());
 	double y=thrust::reduce(square.begin(), square.end(), 0.0, add_functor<double>());
-	return y<b;
+	return y<b*b;
 }
 // ...
 
 /////////////////////////////////////////////////////////
 // Искомая функция
-double w(thrust::device_vector<double> x)
+double w(thrust::device_vector<double> &x)
 {
-	const double _c[] = {7.0/3, 10.0/3};
+	const double _c1[] = {150, 180};
+	const double _c2[] = {240, 200};
+	const double _c3[] = {260, 90};
+	const double _q[] = {1800, 800, 1200};
 
-	thrust::device_vector<double> c(_c, _c + sizeof(_c) / sizeof(_c[0]) );
-	thrust::device_vector<double> sub(thrust::max(x.size(),c.size()));
-	thrust::device_vector<double> square(thrust::max(x.size(),c.size()));
-	assert(x.size()==c.size());
-	thrust::transform(x.begin(), x.end(), c.begin(), sub.begin(), sub_functor<double>());
+	thrust::device_vector<double> c1(_c1, _c1 + sizeof(_c1) / sizeof(_c1[0]) );
+	thrust::device_vector<double> c2(_c2, _c2 + sizeof(_c2) / sizeof(_c2[0]) );
+	thrust::device_vector<double> c3(_c3, _c3 + sizeof(_c3) / sizeof(_c3[0]) );
+	thrust::device_vector<double> q(_q, _q + sizeof(_q) / sizeof(_q[0]) );
+	thrust::device_vector<double> d;
+	thrust::device_vector<double> sub(x.size());
+	thrust::device_vector<double> square(x.size());
+	thrust::device_vector<double> mul(q.size());
+	assert(x.size()==c1.size());
+	assert(x.size()==c2.size());
+	assert(x.size()==c3.size());
+	thrust::transform(x.begin(), x.end(), c1.begin(), sub.begin(), sub_functor<double>());
 	thrust::transform(sub.begin(), sub.end(), square.begin(), square_functor<double>());
-	return thrust::reduce(square.begin(), square.end(), 0.0, add_functor<double>());
+	d.push_back(std::sqrt(thrust::reduce(square.begin(), square.end(), 0.0, add_functor<double>())));
+	thrust::transform(x.begin(), x.end(), c2.begin(), sub.begin(), sub_functor<double>());
+	thrust::transform(sub.begin(), sub.end(), square.begin(), square_functor<double>());
+	d.push_back(std::sqrt(thrust::reduce(square.begin(), square.end(), 0.0, add_functor<double>())));
+	thrust::transform(x.begin(), x.end(), c3.begin(), sub.begin(), sub_functor<double>());
+	thrust::transform(sub.begin(), sub.end(), square.begin(), square_functor<double>());
+	d.push_back(std::sqrt(thrust::reduce(square.begin(), square.end(), 0.0, add_functor<double>())));
+	thrust::transform(q.begin(), q.end(), d.begin(), mul.begin(), mul_functor<double>());
+	return thrust::reduce(mul.begin(), mul.end(), 0.0, add_functor<double>());
 }
 
 enum t_ask_mode {
@@ -171,19 +191,28 @@ t_trace_mode trace_mode = TRACE;
 
 /////////////////////////////////////////////////////////
 // Дефолтные значения
-static const unsigned _n = 2;
-static const unsigned _m[] = {100, 100};
+static const unsigned _count = 1;
+static const size_t _n = 2;
+static const size_t _m[] = {20, 20};
 static const double _a[] = {0, 0};
-static const double _b[] = {100, 100};
+static const double _b[] = {1000, 1000};
 static check_func *_f[]  = {&f1,&f2};
-static const double _e=1e-15;
+static const double _e=1e-10;
 
+/////////////////////////////////////////////////////////
+// Вычисление модуля вектора
+double module(thrust::device_vector<double> &x)
+{
+	thrust::device_vector<double> y(x.size());
+	thrust::transform(x.begin(), x.end(), y.begin(), abs_functor<double>());
+	return thrust::reduce(y.begin(), y.end(), 0.0, max_functor<double>());
+}
 
 /////////////////////////////////////////////////////////
 // Вычисление растояния между двумя векторами координат
-double delta(thrust::device_vector<double> x,thrust::device_vector<double> y)
+double delta(thrust::device_vector<double> &x, thrust::device_vector<double> &y)
 {
-	unsigned i=thrust::min(x.size(),y.size());
+	size_t i=thrust::min(x.size(),y.size());
 	thrust::device_vector<double> diff(thrust::max(x.size(),y.size()));
 	thrust::transform(x.begin(), x.begin()+i, y.begin(), diff.begin(), diff_functor<double>());
 	thrust::transform(x.begin()+i, x.end(), diff.begin()+i, abs_functor<double>());
@@ -193,16 +222,17 @@ double delta(thrust::device_vector<double> x,thrust::device_vector<double> y)
 
 /////////////////////////////////////////////////////////
 // Вычисление вектора индексов координат решётки по номеру узла
+// vector - вектор индексов координат решётки
 // index - номер узла решётки
-thrust::device_vector<unsigned> vector_of(unsigned long index, thrust::device_vector<unsigned> m)
+// m - число сегментов по каждому из измерений
+void vector_of(thrust::device_vector<unsigned> &vector, unsigned long index, thrust::device_vector<size_t> &m)
 {
-	thrust::device_vector<unsigned> vector;
-	for(unsigned i=0;i<m.size();i++)
+	for(size_t i=0;i<m.size();i++)
 	{
-		vector.push_back(index%(1ul+m[i]));
-		index/=1ul+m[i];
+		unsigned long m1 = 1ul+m[i];
+		vector[i]=index%m1;
+		index/=m1;
 	}
-	return vector;
 }
 
 /////////////////////////////////////////////////////////
@@ -212,33 +242,31 @@ thrust::device_vector<unsigned> vector_of(unsigned long index, thrust::device_ve
 // m - число сегментов по каждому из измерений
 // a - вектор минимальных координат точек
 // b - вектор максимальных координат точек
-thrust::device_vector<double> point_of(thrust::device_vector<unsigned> vector,
-												  thrust::device_vector<unsigned> m,
-												  thrust::device_vector<double> a,
-												  thrust::device_vector<double> b)
+void point_of(thrust::device_vector<double> &point, thrust::device_vector<unsigned> &vector, thrust::device_vector<size_t> &m, thrust::device_vector<double> &a, thrust::device_vector<double> &b)
 {
-	thrust::device_vector<double> point(m.size());
-	for(unsigned i=0;i<m.size();i++) point[i]=(a[i]*(m[i]-vector[i])+b[i]*vector[i])/m[i];
-	return point;
+	for(size_t i=0;i<m.size();i++) point[i]=(a[i]*(m[i]-vector[i])+b[i]*vector[i])/m[i];
 }
 
 /////////////////////////////////////////////////////////
 // Вычисление числа узлов решётки
 // m - число сегментов по каждому из измерений
-unsigned long total_of(thrust::device_vector<unsigned> m)
+unsigned long total_of(thrust::device_vector<size_t> &m)
 {
-	return thrust::transform_reduce(m.begin(), m.end(), inc_functor<unsigned>(), 1UL, mul_functor<unsigned long>());
+	return thrust::transform_reduce(m.begin(), m.end(), inc_functor<size_t>(), 1UL, mul_functor<unsigned long>());
 }
 
 /////////////////////////////////////////////////////////
 // Проверка принадлежности точки области, заданной ограничениями
 // x - координаты точки
 // f - набор проверочных функций
-bool check(thrust::device_vector<double> x, thrust::device_vector<check_func *> f)
+// a - вектор минимальных координат точек
+// b - вектор максимальных координат точек
+bool check(thrust::device_vector<double> &x, thrust::device_vector<check_func *> &f, thrust::device_vector<double> &a, thrust::device_vector<double> &b)
 {
-	bool b=true;
-	for(unsigned i=0;b&&i<f.size();i++)	b=(*f[i])(x);
-	return b;
+	for(size_t i=0;i<a.size();i++) if(x[i]<a[i]&&x[i]<b[i]) return false;
+	for(size_t i=0;i<b.size();i++) if(x[i]>a[i]&&x[i]>b[i]) return false;
+	for(size_t i=0;i<f.size();i++) if(!(*f[i])(x)) return false;
+	return true;
 }
 
 
@@ -246,9 +274,10 @@ int main(int argc, char* argv[])
 {
   // http://stackoverflow.com/questions/2236197/what-is-the-easiest-way-to-initialize-a-stdvector-with-hardcoded-elements
 
-	unsigned n=_n;
+	unsigned count=_count;
+	size_t n=_n;
 	double e=_e;
-	thrust::host_vector<unsigned> hm(_m, _m + sizeof(_m) / sizeof(_m[0]) );
+	thrust::host_vector<size_t> hm(_m, _m + sizeof(_m) / sizeof(_m[0]) );
 	thrust::host_vector<double> ha(_a, _a + sizeof(_a) / sizeof(_a[0]) );
 	thrust::host_vector<double> hb(_b, _b + sizeof(_b) / sizeof(_b[0]) );
 	thrust::host_vector<check_func *> hf(_f, _f + sizeof(_f) / sizeof(_f[0]) );
@@ -270,6 +299,7 @@ int main(int argc, char* argv[])
 			std::cout << "Используя алгоритм одномерной оптимизации по направлению" << std::endl;
 			std::cout << "(Алгоритм деления значений аргумента функции)" << std::endl;
 			//			std::cout << "\t-n <размерность пространства>" << std::endl;
+			std::cout << "\t-c <количество повторений алгоритма для замера времени>" << std::endl;
 			std::cout << "\t-m <число сегментов по каждому из измерений>" << std::endl;
 			std::cout << "\t-a <минимальные координаты по каждому из измерений>" << std::endl;
 			std::cout << "\t-b <максимальные координаты по каждому из измерений>" << std::endl;
@@ -283,18 +313,19 @@ int main(int argc, char* argv[])
 		else if(strcmp(argv[i],"-notrace")==0) trace_mode = NOTRACE;
 		//		else if(strcmp(argv[i],"-n")==0) n = atoi(argv[++i]);
 		else if(strcmp(argv[i],"-e")==0) e = atof(argv[++i]);
+		else if(strcmp(argv[i],"-c")==0) count = atoi(argv[++i]);
 		else if(strcmp(argv[i],"-m")==0) {
 			std::istringstream ss(argv[++i]);
 			hm.clear();
-			for(unsigned i=0;i<n;i++) hm.push_back(atoi(argv[++i]));
+			for(size_t i=0;i<n;i++) hm.push_back(atoi(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-a")==0) {
 			ha.clear();
-			for(unsigned i=0;i<n;i++) ha.push_back(atof(argv[++i]));
+			for(size_t i=0;i<n;i++) ha.push_back(atof(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-b")==0) {
 			hb.clear();
-			for(unsigned i=0;i<n;i++) hb.push_back(atof(argv[++i]));
+			for(size_t i=0;i<n;i++) hb.push_back(atof(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-input")==0) input_file_name = argv[++i];
 		else if(strcmp(argv[i],"-output")==0) output_file_name = argv[++i];
@@ -310,7 +341,7 @@ int main(int argc, char* argv[])
 
 		std::cout << "Введите число сегментов по каждому из измерений m[" << n << "]:"<< std::endl;
 		hm.clear();
-		for(unsigned i=0;i<n;i++)
+		for(size_t i=0;i<n;i++)
 		{
 			int x; 
 			std::cin >> x;
@@ -319,7 +350,7 @@ int main(int argc, char* argv[])
 
 		std::cout << "Введите минимальные координаты по каждому из измерений a[" << n << "]:"<< std::endl;
 		ha.clear();
-		for(unsigned i=0;i<n;i++)
+		for(size_t i=0;i<n;i++)
 		{
 			double x; 
 			std::cin >> x;
@@ -328,7 +359,7 @@ int main(int argc, char* argv[])
 
 		std::cout << "Введите максимальные координаты по каждому из измерений b[" << n << "]:"<< std::endl;
 		hb.clear();
-		for(unsigned i=0;i<n;i++)
+		for(size_t i=0;i<n;i++)
 		{
 			double x; 
 			std::cin >> x;
@@ -336,98 +367,132 @@ int main(int argc, char* argv[])
 		}
 
 		std::cout << "Введите точность вычислений:"<< std::endl; std::cin >> e;
+		std::cout << "Введите количество повторений алгоритма для замера времени:"<< std::endl; std::cin >> count;
+	}
+
+	// Find/set the device.
+	int device_count = 0;
+	cudaGetDeviceCount(&device_count);
+	for (int i = 0; i < device_count; ++i)
+	{
+		cudaDeviceProp properties;
+		cudaGetDeviceProperties(&properties, i);
+		std::cout << "Running on GPU " << i << " (" << properties.name << ")" << std::endl;
 	}
 
 	int major = THRUST_MAJOR_VERSION;
 	int minor = THRUST_MINOR_VERSION;
 
 	std::cout << "Thrust v" << major << "." << minor << std::endl;
-	std::cout << "Размерность пространства : " << n << std::endl;
-	std::cout << "Число сегментов          : "; for(unsigned i=0;i<hm.size();i++) std::cout << hm[i] << " "; std::cout << std::endl; 
-	std::cout << "Минимальные координаты   : "; for(unsigned i=0;i<ha.size();i++) std::cout << ha[i] << " "; std::cout << std::endl; 
-	std::cout << "Максимальные координаты  : "; for(unsigned i=0;i<hb.size();i++) std::cout << hb[i] << " "; std::cout << std::endl; 
-	std::cout << "Точность вычислений      : " << e << std::endl;
 
-	for(unsigned i=0;i<hm.size();i++) assert(hm[i]>2);
+	for(size_t i=0;i<hm.size();i++) assert(hm[i]>2);
 
 // Алгоритм
-	thrust::device_vector<unsigned> m(hm);
+	clock_t time = clock();
+
+	thrust::device_vector<size_t> m(hm);
 	thrust::device_vector<double> a(ha);
 	thrust::device_vector<double> b(hb);
 	thrust::device_vector<check_func *> f(hf);
 
 	thrust::host_vector<double> hx(n);
+
+	thrust::device_vector<unsigned> v(n);
 	thrust::device_vector<double> t(n);
+	thrust::device_vector<double> x(n);
 	thrust::device_vector<double> x1(n);
-
-	// Находим первую точку в области, заданной ограничениями
-	thrust::device_vector<double> x;
 	double y;
-	while(true)
-	{
-		unsigned long total=total_of(m);
-		unsigned long index=0;
-		while(index<total)
-		{
-			x = point_of(vector_of(index++, m), m, a, b);
-			if(check(x,f)) break;
-		}
-		if(index>=total)
-		{
-			for(unsigned i=0; i<n; i++) m[i]<<=1u;
-			continue;
-		}
-		y = (*w)(x);
-		break;
-	}
 
-	while(true)
+	if(trace_mode==TRACE&&count==1) std::cout << "for #1" << std::endl; 
+	for(unsigned s=0; s<count; s++)
 	{
-		// Находим следующую точку в области, заданной ограничениями
-		// Используя алгоритм одномерной оптимизации по направлению
-		
-		thrust::copy(x.begin(), x.end(), x1.begin()); // Сохранение значения последней точки
-
-		// Цикл по измерениям
-		for(unsigned k=0; k<n; k++)
+		if(trace_mode==TRACE&&count==1) std::cout << "while #1" << std::endl; 
+		while(true)
 		{
-			// Алгоритм одномерной оптимизации по направлению
-			double ak = a[k];
-			double bk = b[k];
-			unsigned mk = m[k];
-			while(true)
+			// Находим первую точку в области, заданной ограничениями
+			unsigned long total=total_of(m);
+			unsigned long index=0;
+			while(index<total)
 			{
-				thrust::copy(x.begin(), x.end(), t.begin());
-				for(unsigned i=0; i<=mk; i++)
-				{
-					t[k] = (ak*(mk-i)+bk*i)/mk;
-					if(!check(t,f)) continue;
-					double yk = (*w)(t);
-					if(yk>y) continue;
-					y = yk;
-					x[k] = t[k];
-				}
-				if(thrust::max(ak-bk,bk-ak)<e) break;
-				double aa = ak;
-				double bb = bk;
-				double xx = x[k];
-				ak=thrust::max(aa,xx-(bb-aa)/mk);
-				bk=thrust::min(bb,xx+(bb-aa)/mk);
+				vector_of(v, index++, m);
+				point_of(x, v, m, a, b);
+				if(check(x, f, a, b)) break;
 			}
+			if(index>=total)
+			{
+				for(size_t i=0; i<n; i++) m[i]<<=1u;
+				continue;
+			}
+			y = (*w)(x);
+			if(trace_mode==TRACE&&count==1) {
+				thrust::copy(x.begin(), x.end(), hx.begin());
+				for(size_t i=0;i<hx.size();i++) std::cout << hx[i] << " "; 
+			}
+			if(trace_mode==TRACE&&count==1) std::cout << "-> " << y << std::endl; 
+			break;
 		}
 
-		if(trace_mode==TRACE) {
-			thrust::copy(x.begin(), x.end(), hx.begin());
-			for(unsigned i=0;i<hx.size();i++) std::cout << hx[i] << " "; 
-		}
-		if(trace_mode==TRACE) std::cout << "-> " << y << std::endl; 
+		if(trace_mode==TRACE&&count==1) std::cout << "while #2" << std::endl; 
+		while(true)
+		{
+			// Находим следующую точку в области, заданной ограничениями
+			// Используя алгоритм одномерной оптимизации по направлению
+		
+			thrust::copy(x.begin(), x.end(), x1.begin()); // Сохранение значения последней точки
 
-		if(delta(x,x1)<e) break;
+			// Цикл по измерениям
+			if(trace_mode==TRACE&&count==1) std::cout << "for #2" << std::endl; 
+			for(size_t k=0; k<n; k++)
+			{
+				// Алгоритм одномерной оптимизации по направлению
+				double ak = thrust::min(a[k],b[k]);
+				double bk = thrust::max(a[k],b[k]);
+				size_t mk = m[k];
+				thrust::copy(x.begin(), x.end(), t.begin());
+				while(true)
+				{
+					for(size_t i=0; i<=mk; i++)
+					{
+						t[k] = (ak*(mk-i)+bk*i)/mk;
+						if(!check(t, f, a, b)) continue;
+						double yk = (*w)(t);
+						if(yk>y) continue;
+						y = yk;
+						x[k] = t[k];
+						if(trace_mode==TRACE&&count==1) {
+							thrust::copy(x.begin(), x.end(), hx.begin());
+							for(size_t i=0;i<hx.size();i++) std::cout << hx[i] << " "; 
+						}
+						if(trace_mode==TRACE&&count==1) std::cout << "-> " << y << std::endl; 
+					}
+					double dd = thrust::max(ak-bk,bk-ak);
+					double cc = thrust::max(thrust::max(ak,-ak),thrust::max(-bk,bk));
+					if(dd<=cc*e) break;
+					double xk = x[k];
+					ak=thrust::max(ak,xk-dd/mk);
+					bk=thrust::min(bk,xk+dd/mk);
+				}
+			}
+
+			double dd = delta(x,x1);
+			double cc = thrust::max(module(x),module(x1));
+			if(dd<=cc*e) break;
+		}
 	}
+
+	time = clock() - time;
+	double seconds = ((double)time)/CLOCKS_PER_SEC/count;
 
 	thrust::copy(x.begin(), x.end(), hx.begin());
-	std::cout << "Точка минимума           : "; for(unsigned i=0;i<hx.size();i++) std::cout << hx[i] << " "; std::cout << std::endl; 
+	std::cout << "Исполняемый файл         : " << argv[0] << std::endl;
+	std::cout << "Размерность пространства : " << n << std::endl;
+	std::cout << "Число сегментов          : "; for(size_t i=0;i<hm.size();i++) std::cout << hm[i] << " "; std::cout << std::endl; 
+	std::cout << "Минимальные координаты   : "; for(size_t i=0;i<ha.size();i++) std::cout << ha[i] << " "; std::cout << std::endl; 
+	std::cout << "Максимальные координаты  : "; for(size_t i=0;i<hb.size();i++) std::cout << hb[i] << " "; std::cout << std::endl; 
+	std::cout << "Точность вычислений      : " << e << std::endl;
+	std::cout << "Точка минимума           : "; for(size_t i=0;i<hx.size();i++) std::cout << hx[i] << " "; std::cout << std::endl; 
 	std::cout << "Минимальное значение     : " << y << std::endl; 
+	std::cout << "Время вычислений (сек.)  : " << seconds << std::endl; 
 
 	getchar();
 	getchar();

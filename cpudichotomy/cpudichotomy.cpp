@@ -18,14 +18,15 @@
 
 using namespace std;
 
-typedef bool (check_func)(std::vector<double> x); // Профиль проверочной функции
-typedef double (value_func)(std::vector<double> x); // Профиль искомой функции
+typedef bool (check_func)(std::vector<double> &x); // Профиль проверочной функции
+typedef double (value_func)(std::vector<double> &x); // Профиль искомой функции
 
-bool check(std::vector<double> x, std::vector<check_func *> f);
-double delta(std::vector<double> x,std::vector<double> y);
-unsigned long total_of(std::vector<unsigned> m);
-std::vector<unsigned> vector_of(unsigned long index, std::vector<unsigned> m);
-std::vector<double> point_of(std::vector<unsigned> vector, std::vector<unsigned> m, std::vector<double> a, std::vector<double> b);
+bool check(std::vector<double> &x, std::vector<check_func *> &f, std::vector<double> &a, std::vector<double> &b);
+double module(std::vector<double> &x);
+double delta(std::vector<double> &x, std::vector<double> &y);
+unsigned long total_of(std::vector<size_t> &m);
+void vector_of(std::vector<unsigned> &vector, unsigned long index, std::vector<size_t> &m);
+void point_of(std::vector<double> &point, std::vector<unsigned> &vector, std::vector<size_t> &m, std::vector<double> &a, std::vector<double> &b);
 
 template <typename T>
 T inc_functor(T value)  
@@ -81,10 +82,10 @@ bool and_functor(const bool value1, const bool value2)
 
 /////////////////////////////////////////////////////////
 // Набор проверочных функций
-bool f1(std::vector<double> x)
+bool f1(std::vector<double> &x)
 {
-	static const double _c[] = {1, 1};
-	static const double b = 16;
+	static const double _c[] = {0, 0};
+	static const double b = 500;
 
 	std::vector<double> c(_c, _c + sizeof(_c) / sizeof(_c[0]) );
 	std::vector<double> sub(std::max(x.size(),c.size()));
@@ -93,12 +94,12 @@ bool f1(std::vector<double> x)
 	std::transform(x.begin(), x.end(), c.begin(), sub.begin(), sub_functor<double>);
 	std::transform(sub.begin(), sub.end(), square.begin(), square_functor<double>);
 	double y=std::accumulate(square.begin(), square.end(), 0.0, add_functor<double>);
-	return y<b;
+	return y<b*b;
 }
-bool f2(std::vector<double> x)
+bool f2(std::vector<double> &x)
 {
-	static const double _c[] = {2, 2};
-	static const double b = 16;
+	static const double _c[] = {100, 100};
+	static const double b = 500;
 
 	std::vector<double> c(_c, _c + sizeof(_c) / sizeof(_c[0]) );
 	std::vector<double> sub(std::max(x.size(),c.size()));
@@ -107,23 +108,41 @@ bool f2(std::vector<double> x)
 	std::transform(x.begin(), x.end(), c.begin(), sub.begin(), sub_functor<double>);
 	std::transform(sub.begin(), sub.end(), square.begin(), square_functor<double>);
 	double y=std::accumulate(square.begin(), square.end(), 0.0, add_functor<double>);
-	return y<b;
+	return y<b*b;
 }
 // ...
 
 /////////////////////////////////////////////////////////
 // Искомая функция
-double w(std::vector<double> x)
+double w(std::vector<double> &x)
 {
-	const double _c[] = {7.0/3, 10.0/3};
+	const double _c1[] = {150, 180};
+	const double _c2[] = {240, 200};
+	const double _c3[] = {260, 90};
+	const double _q[] = {1800, 800, 1200};
 
-	std::vector<double> c(_c, _c + sizeof(_c) / sizeof(_c[0]) );
-	std::vector<double> sub(std::max(x.size(),c.size()));
-	std::vector<double> square(std::max(x.size(),c.size()));
-	assert(x.size()==c.size());
-	std::transform(x.begin(), x.end(), c.begin(), sub.begin(), sub_functor<double>);
+	std::vector<double> c1(_c1, _c1 + sizeof(_c1) / sizeof(_c1[0]) );
+	std::vector<double> c2(_c2, _c2 + sizeof(_c2) / sizeof(_c2[0]) );
+	std::vector<double> c3(_c3, _c3 + sizeof(_c3) / sizeof(_c3[0]) );
+	std::vector<double> q(_q, _q + sizeof(_q) / sizeof(_q[0]) );
+	std::vector<double> d;
+	std::vector<double> sub(x.size());
+	std::vector<double> square(x.size());
+	std::vector<double> mul(q.size());
+	assert(x.size()==c1.size());
+	assert(x.size()==c2.size());
+	assert(x.size()==c3.size());
+	std::transform(x.begin(), x.end(), c1.begin(), sub.begin(), sub_functor<double>);
 	std::transform(sub.begin(), sub.end(), square.begin(), square_functor<double>);
-	return std::accumulate(square.begin(), square.end(), 0.0, add_functor<double>);
+	d.push_back(std::sqrt(std::accumulate(square.begin(), square.end(), 0.0, add_functor<double>)));
+	std::transform(x.begin(), x.end(), c2.begin(), sub.begin(), sub_functor<double>);
+	std::transform(sub.begin(), sub.end(), square.begin(), square_functor<double>);
+	d.push_back(std::sqrt(std::accumulate(square.begin(), square.end(), 0.0, add_functor<double>)));
+	std::transform(x.begin(), x.end(), c3.begin(), sub.begin(), sub_functor<double>);
+	std::transform(sub.begin(), sub.end(), square.begin(), square_functor<double>);
+	d.push_back(std::sqrt(std::accumulate(square.begin(), square.end(), 0.0, add_functor<double>)));
+	std::transform(q.begin(), q.end(), d.begin(), mul.begin(), mul_functor<double>);
+	return std::accumulate(mul.begin(), mul.end(), 0.0, add_functor<double>);
 }
 
 enum t_ask_mode {
@@ -139,39 +158,49 @@ t_trace_mode trace_mode = TRACE;
 
 /////////////////////////////////////////////////////////
 // Дефолтные значения
-static const unsigned _n = 2;
-static const unsigned _m[] = {3, 3};
+static const unsigned _count = 1;
+static const size_t _n = 2;
+static const size_t _m[] = {3, 3};
 static const double _a[] = {0, 0};
-static const double _b[] = {100, 100};
+static const double _b[] = {1000, 1000};
 static check_func *_f[]  = {&f1,&f2};
-static const double _e=1e-15;
+static const double _e=1e-10;
 
 
 /////////////////////////////////////////////////////////
-// Вычисление растояния между двумя векторами координат
-double delta(std::vector<double> x,std::vector<double> y)
+// Вычисление модуля вектора
+double module(std::vector<double> &x)
 {
-	unsigned i=std::min(x.size(),y.size());
+	std::vector<double> y(x.size());
+	std::transform(x.begin(), x.end(), y.begin(), abs_functor<double>);
+	return std::accumulate(y.begin(), y.end(), 0.0, max_functor<double>);
+}
+
+/////////////////////////////////////////////////////////
+// Вычисление растояния между двумя векторами координат
+double delta(std::vector<double> &x, std::vector<double> &y)
+{
+	size_t i=std::min(x.size(),y.size());
 	std::vector<double> diff(std::max(x.size(),y.size()));
-	double init = 0;
 	std::transform(x.begin(), x.begin()+i, y.begin(), diff.begin(), diff_functor<double>);
 	std::transform(x.begin()+i, x.end(), diff.begin()+i, abs_functor<double>);
 	std::transform(y.begin()+i, y.end(), diff.begin()+i, abs_functor<double>);
-	return std::accumulate(diff.begin(), diff.end(),init,max_functor<double>);
+	return std::accumulate(diff.begin(), diff.end(), 0.0,max_functor<double>);
 }
 
 /////////////////////////////////////////////////////////
 // Вычисление вектора индексов координат решётки по номеру узла
+// vector - вектор индексов координат решётки
 // index - номер узла решётки
-std::vector<unsigned> vector_of(unsigned long index, std::vector<unsigned> m)
+// m - число сегментов по каждому из измерений
+void vector_of(std::vector<unsigned> &vector, unsigned long index, std::vector<size_t> &m)
 {
-	std::vector<unsigned> vector;
-	for(unsigned i=0;i<m.size();i++)
+	for(size_t i=0;i<m.size();i++)
 	{
-		vector.push_back(index%(1ul+m[i]));
-		index/=1ul+m[i];
+		unsigned long m1 = 1ul+m[i];
+		vector[i]=index%m1;
+		index/=m1;
 	}
-	return vector;
 }
 
 /////////////////////////////////////////////////////////
@@ -181,23 +210,18 @@ std::vector<unsigned> vector_of(unsigned long index, std::vector<unsigned> m)
 // m - число сегментов по каждому из измерений
 // a - вектор минимальных координат точек
 // b - вектор максимальных координат точек
-std::vector<double> point_of(std::vector<unsigned> vector,
-							 std::vector<unsigned> m,
-							 std::vector<double> a,
-							 std::vector<double> b)
+void point_of(std::vector<double> &point, std::vector<unsigned> &vector, std::vector<size_t> &m, std::vector<double> &a, std::vector<double> &b)
 {
-	std::vector<double> point(m.size());
-	for(unsigned i=0;i<m.size();i++) point[i]=(a[i]*(m[i]-vector[i])+b[i]*vector[i])/m[i];
-	return point;
+	for(size_t i=0;i<m.size();i++) point[i]=(a[i]*(m[i]-vector[i])+b[i]*vector[i])/m[i];
 }
 
 /////////////////////////////////////////////////////////
 // Вычисление числа узлов решётки
 // m - число сегментов по каждому из измерений
-unsigned long total_of(std::vector<unsigned> m)
+unsigned long total_of(std::vector<size_t> &m)
 {
-	std::vector<unsigned> m1(m.size());
-	std::transform(m.begin(), m.end(), m1.begin(), inc_functor<unsigned>);
+	std::vector<size_t> m1(m.size());
+	std::transform(m.begin(), m.end(), m1.begin(), inc_functor<size_t>);
 	return std::accumulate(m1.begin(), m1.end(), 1UL, mul_functor<unsigned long>);
 }
 
@@ -205,19 +229,24 @@ unsigned long total_of(std::vector<unsigned> m)
 // Проверка принадлежности точки области, заданной ограничениями
 // x - координаты точки
 // f - набор проверочных функций
-bool check(std::vector<double> x, std::vector<check_func *> f)
+// a - вектор минимальных координат точек
+// b - вектор максимальных координат точек
+bool check(std::vector<double> &x, std::vector<check_func *> &f, std::vector<double> &a, std::vector<double> &b)
 {
-	bool b=true;
-	for(unsigned i=0;b&&i<f.size();i++)	b=(*f[i])(x);
-	return b;
+	for(size_t i=0;i<a.size();i++) if(x[i]<a[i]&&x[i]<b[i]) return false;
+	for(size_t i=0;i<b.size();i++) if(x[i]>a[i]&&x[i]>b[i]) return false;
+	for(size_t i=0;i<f.size();i++) if(!(*f[i])(x)) return false;
+	return true;
 }
 
 int main(int argc, char* argv[])
 {
 	// http://stackoverflow.com/questions/2236197/what-is-the-easiest-way-to-initialize-a-stdvector-with-hardcoded-elements
-	unsigned n=_n;
+
+	unsigned count=_count;
+	size_t n=_n;
 	double e=_e;
-	std::vector<unsigned> m(_m, _m + sizeof(_m) / sizeof(_m[0]) );
+	std::vector<size_t> m(_m, _m + sizeof(_m) / sizeof(_m[0]) );
 	std::vector<double> a(_a, _a + sizeof(_a) / sizeof(_a[0]) );
 	std::vector<double> b(_b, _b + sizeof(_b) / sizeof(_b[0]) );
 	std::vector<check_func *> f(_f, _f + sizeof(_f) / sizeof(_f[0]) );
@@ -238,6 +267,7 @@ int main(int argc, char* argv[])
 			std::cout << "Алгоритм многомерной оптимизации с использованием метода решёток" << std::endl;
 			std::cout << "Алгоритм деления значений аргумента функции" << std::endl;
 			//			std::cout << "\t-n <размерность пространства>" << std::endl;
+			std::cout << "\t-c <количество повторений алгоритма для замера времени>" << std::endl;
 			std::cout << "\t-m <число сегментов по каждому из измерений>" << std::endl;
 			std::cout << "\t-a <минимальные координаты по каждому из измерений>" << std::endl;
 			std::cout << "\t-b <максимальные координаты по каждому из измерений>" << std::endl;
@@ -251,18 +281,19 @@ int main(int argc, char* argv[])
 		else if(strcmp(argv[i],"-notrace")==0) trace_mode = NOTRACE;
 		//		else if(strcmp(argv[i],"-n")==0) n = atoi(argv[++i]);
 		else if(strcmp(argv[i],"-e")==0) e = atof(argv[++i]);
+		else if(strcmp(argv[i],"-c")==0) count = atoi(argv[++i]);
 		else if(strcmp(argv[i],"-m")==0) {
 			std::istringstream ss(argv[++i]);
 			m.clear();
-			for(unsigned i=0;i<n;i++) m.push_back(atoi(argv[++i]));
+			for(size_t i=0;i<n;i++) m.push_back(atoi(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-a")==0) {
 			a.clear();
-			for(unsigned i=0;i<n;i++) a.push_back(atof(argv[++i]));
+			for(size_t i=0;i<n;i++) a.push_back(atof(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-b")==0) {
 			b.clear();
-			for(unsigned i=0;i<n;i++) b.push_back(atof(argv[++i]));
+			for(size_t i=0;i<n;i++) b.push_back(atof(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-input")==0) input_file_name = argv[++i];
 		else if(strcmp(argv[i],"-output")==0) output_file_name = argv[++i];
@@ -277,7 +308,7 @@ int main(int argc, char* argv[])
 
 		std::cout << "Введите число сегментов по каждому из измерений m[" << n << "]:"<< std::endl;
 		m.clear();
-		for(unsigned i=0;i<n;i++)
+		for(size_t i=0;i<n;i++)
 		{
 			int x; std::cin >> x;
 			m.push_back(x);
@@ -285,7 +316,7 @@ int main(int argc, char* argv[])
 
 		std::cout << "Введите минимальные координаты по каждому из измерений a[" << n << "]:"<< std::endl;
 		a.clear();
-		for(unsigned i=0;i<n;i++)
+		for(size_t i=0;i<n;i++)
 		{
 			double x; std::cin >> x;
 			a.push_back(x);
@@ -293,72 +324,96 @@ int main(int argc, char* argv[])
 
 		std::cout << "Введите максимальные координаты по каждому из измерений b[" << n << "]:"<< std::endl;
 		b.clear();
-		for(unsigned i=0;i<n;i++)
+		for(size_t i=0;i<n;i++)
 		{
 			double x; std::cin >> x;
 			b.push_back(x);
 		}
 
 		std::cout << "Введите точность вычислений:"<< std::endl; std::cin >> e;
+		std::cout << "Введите количество повторений алгоритма для замера времени:"<< std::endl; std::cin >> count;
 	}
 
-	std::cout << "Размерность пространства : " << n << std::endl;
-	std::cout << "Число сегментов          : "; for(unsigned i=0;i<m.size();i++) std::cout << m[i] << " "; std::cout << std::endl; 
-	std::cout << "Минимальные координаты   : "; for(unsigned i=0;i<a.size();i++) std::cout << a[i] << " "; std::cout << std::endl; 
-	std::cout << "Максимальные координаты  : "; for(unsigned i=0;i<b.size();i++) std::cout << b[i] << " "; std::cout << std::endl; 
-	std::cout << "Точность вычислений      : " << e << std::endl;
-
-	for(unsigned i=0;i<m.size();i++) assert(m[i]>2);
+	for(size_t i=0;i<m.size();i++) assert(m[i]>2);
 
 // Алгоритм
+	clock_t time = clock();
 
-	std::vector<double> x;
+	std::vector<unsigned> v(n);
+	std::vector<double> x(n);
+	std::vector<double> x1(n);
+	std::vector<double> a1(n);
+	std::vector<double> b1(n);
 	double y;
 
-	while(true)
+	if(trace_mode==TRACE&&count==1) std::cout << "for #1" << std::endl; 
+	for(unsigned s=0; s<count; s++)
 	{
-		unsigned long total=total_of(m);
+		std::copy(a.begin(), a.end(), a1.begin());
+		std::copy(b.begin(), b.end(), b1.begin());
 
-		// Находим первую точку в области, заданной ограничениями
-		unsigned long index=0;
-		while(index<total)
+		if(trace_mode==TRACE&&count==1) std::cout << "while #1" << std::endl; 
+		while(true)
 		{
-			x = point_of(vector_of(index++, m), m, a, b);
-			if(check(x,f)) break;
-		}
-		if(index>=total)
-		{
-			for(unsigned i=0; i<n; i++) m[i]<<=1u;
-			continue;
-		}
-		y=(*w)(x);
+			unsigned long total=total_of(m);
 
-		while(index<total)
-		{
-			std::vector<double> x1 = point_of(vector_of(index++, m), m, a, b);
-			if(!check(x1,f)) continue;
-			double y1 = (*w)(x1);
-			if(y1>y) continue;
-			std::copy(x1.begin(), x1.end(), x.begin());
-			y=y1;
-		}
+			// Находим первую точку в области, заданной ограничениями
+			unsigned long index=0;
+			while(index<total)
+			{
+				vector_of(v, index++, m);
+				point_of(x, v, m, a1, b1);
+				if(check(x, f, a1, b1)) break;
+			}
+			if(index>=total)
+			{
+				for(size_t i=0; i<n; i++) m[i]<<=1u;
+				continue;
+			}
+			y=(*w)(x);
 
-		if(trace_mode==TRACE) for(unsigned i=0;i<x.size();i++) std::cout << x[i] << " "; 
-		if(trace_mode==TRACE) std::cout << "-> " << y << std::endl; 
+			// Находим следующую точку в области, заданной ограничениями
+			while(index<total)
+			{
+				vector_of(v, index++, m);
+				point_of(x1, v, m, a1, b1);
+				if(!check(x1, f, a1, b1)) continue;
+				double y1 = (*w)(x1);
+				if(y1>y) continue;
+				std::copy(x1.begin(), x1.end(), x.begin());
+				y=y1;
+			}
 
-		if(delta(a,b)<e) break;
+			if(trace_mode==TRACE&&count==1) for(size_t i=0;i<x.size();i++) std::cout << x[i] << " "; 
+			if(trace_mode==TRACE&&count==1) std::cout << "-> " << y << std::endl; 
 
-		for(unsigned i=0;i<std::min(a.size(),b.size());i++) {
-			double aa = a[i];
-			double bb = b[i];
-			double xx = x[i];
-			a[i]=std::max(aa,xx-(bb-aa)/m[i]);
-			b[i]=std::min(bb,xx+(bb-aa)/m[i]);
+			double dd = delta(a1,b1);
+			double cc = std::max(module(a1),module(b1));
+			if(dd<=cc*e) break;
+
+			for(size_t k=0;k<n;k++) {
+				double ak = a1[k];
+				double bk = b1[k];
+				double xk = x[k];
+				double dd = std::max(ak-bk,bk-ak);
+				a1[k]=std::max(ak,xk-dd/m[k]);
+				b1[k]=std::min(bk,xk+dd/m[k]);
+			}
 		}
 	}
 
-	std::cout << "Точка минимума           : "; for(unsigned i=0;i<x.size();i++) std::cout << x[i] << " "; std::cout << std::endl; 
+	time = clock() - time;
+	double seconds = ((double)time)/CLOCKS_PER_SEC/count;
+
+	std::cout << "Исполняемый файл         : " << argv[0] << std::endl;
+	std::cout << "Размерность пространства : " << n << std::endl;
+	std::cout << "Число сегментов          : "; for(size_t i=0;i<m.size();i++) std::cout << m[i] << " "; std::cout << std::endl; 
+	std::cout << "Минимальные координаты   : "; for(size_t i=0;i<a.size();i++) std::cout << a[i] << " "; std::cout << std::endl; 
+	std::cout << "Максимальные координаты  : "; for(size_t i=0;i<b.size();i++) std::cout << b[i] << " "; std::cout << std::endl; 
+	std::cout << "Точность вычислений      : " << e << std::endl;
+	std::cout << "Точка минимума           : "; for(size_t i=0;i<x.size();i++) std::cout << x[i] << " "; std::cout << std::endl; 
 	std::cout << "Минимальное значение     : " << y << std::endl; 
+	std::cout << "Время вычислений (сек.)  : " << seconds << std::endl; 
 
 	getchar();
 	getchar();

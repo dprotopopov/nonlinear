@@ -38,8 +38,9 @@ using namespace thrust;
 // As a result, Thrust can be utilized in rapid prototyping of CUDA applications, where programmer productivity matters most, as well as in production, where robustness and absolute performance are crucial.
 // Read more at: http://docs.nvidia.com/cuda/thrust/index.html#ixzz3hymTnQwX 
 
-double delta(thrust::device_vector<double> x,thrust::device_vector<double> y);
-unsigned long total_of(thrust::device_vector<unsigned> m);
+double module(thrust::device_vector<double> &x);
+double delta(thrust::device_vector<double> &x, thrust::device_vector<double> &y);
+unsigned long total_of(thrust::device_vector<size_t> &m);
 
 template <typename T>
 struct inc_functor { 
@@ -108,16 +109,25 @@ struct max_functor {
 /////////////////////////////////////////////////////////
 // Вычисление числа узлов решётки
 // m - число сегментов по каждому из измерений
-unsigned long total_of(thrust::device_vector<unsigned> m)
+unsigned long total_of(thrust::device_vector<size_t> &m)
 {
-	return thrust::transform_reduce(m.begin(), m.end(), inc_functor<unsigned>(), 1UL, mul_functor<unsigned long>());
+	return thrust::transform_reduce(m.begin(), m.end(), inc_functor<size_t>(), 1UL, mul_functor<unsigned long>());
+}
+
+/////////////////////////////////////////////////////////
+// Вычисление модуля вектора
+double module(thrust::device_vector<double> &x)
+{
+	thrust::device_vector<double> y(x.size());
+	thrust::transform(x.begin(), x.end(), y.begin(), abs_functor<double>());
+	return thrust::reduce(y.begin(), y.end(), 0.0, max_functor<double>());
 }
 
 /////////////////////////////////////////////////////////
 // Вычисление растояния между двумя векторами координат
-double delta(thrust::device_vector<double> x,thrust::device_vector<double> y)
+double delta(thrust::device_vector<double> &x, thrust::device_vector<double> &y)
 {
-	unsigned i=thrust::min(x.size(),y.size());
+	size_t i=thrust::min(x.size(),y.size());
 	thrust::device_vector<double> diff(thrust::max(x.size(),y.size()));
 	thrust::transform(x.begin(), x.begin()+i, y.begin(), diff.begin(), diff_functor<double>());
 	thrust::transform(x.begin()+i, x.end(), diff.begin()+i, abs_functor<double>());
@@ -127,34 +137,41 @@ double delta(thrust::device_vector<double> x,thrust::device_vector<double> y)
 
 /////////////////////////////////////////////////////////
 // Набор проверочных функций
-__device__ bool f1(double * x, int n)
+__device__ bool f1(double * x, size_t n)
 {
-	const double _c[] = {1, 1};
-	const double b = 16;
+	const double _c[] = {0, 0};
+	const double b = 500;
 
 	double y = 0.0;
-	for(unsigned i=0; i<n; i++) y+=(x[i]-_c[i])*(x[i]-_c[i]);
-	return y<b;
+	for(size_t i=0; i<n; i++) y+=(x[i]-_c[i])*(x[i]-_c[i]);
+	return y<b*b;
 }
-__device__ bool f2(double * x, int n)
+__device__ bool f2(double * x, size_t n)
 {
-	const double _c[] = {2, 2};
-	const double b = 16;
+	const double _c[] = {100, 100};
+	const double b = 500;
 
 	double y = 0.0;
-	for(unsigned i=0; i<n; i++) y+=(x[i]-_c[i])*(x[i]-_c[i]);
-	return y<b;
+	for(size_t i=0; i<n; i++) y+=(x[i]-_c[i])*(x[i]-_c[i]);
+	return y<b*b;
 }
 // ...
 
 /////////////////////////////////////////////////////////
 // Искомая функция
-__device__ double w(double * x, int n)
+__device__ double w(double * x, size_t n)
 {
-	const double _c[] = {7.0/3, 10.0/3};
+	const double _c1[] = {150, 180};
+	const double _c2[] = {240, 200};
+	const double _c3[] = {260, 90};
+	const double _q[] = {1800, 800, 1200};
+	double square[] = { 0, 0, 0 };
 
 	double y = 0.0;
-	for(unsigned i=0; i<n; i++) y+=(x[i]-_c[i])*(x[i]-_c[i]);
+	for(size_t i=0; i<n; i++) square[0]+=(x[i]-_c1[i])*(x[i]-_c1[i]);
+	for(size_t i=0; i<n; i++) square[1]+=(x[i]-_c2[i])*(x[i]-_c2[i]);
+	for(size_t i=0; i<n; i++) square[2]+=(x[i]-_c3[i])*(x[i]-_c3[i]);
+	for(size_t i=0; i<3; i++) y+=_q[i]*sqrt(square[i]);
 	return y;
 }
 
@@ -171,21 +188,23 @@ t_trace_mode trace_mode = TRACE;
 
 /////////////////////////////////////////////////////////
 // Дефолтные значения
-const unsigned _n = 2;
-const unsigned _m[] = {100, 100};
-const double _a[] = {0, 0};
-const double _b[] = {100, 100};
-const double _e=1e-15;
+static const unsigned _count = 1;
+static const size_t _n = 2;
+static const size_t _m[] = {20, 20};
+static const double _a[] = {0, 0};
+static const double _b[] = {1000, 1000};
+static const double _e=1e-10;
 
 /////////////////////////////////////////////////////////
 // Вычисление вектора индексов координат решётки по номеру узла
 // index - номер узла решётки
-__device__ void vector_of(unsigned * vector, unsigned long index, unsigned * m, int n)
+__device__ void vector_of(unsigned * vector, unsigned long index, size_t * m, size_t n)
 {
-	for(unsigned i=0;i<n;i++)
+	for(size_t i=0;i<n;i++)
 	{
-		vector[i]=index%(1ul+m[i]);
-		index/=1ul+m[i];
+		unsigned long m1 = 1ul+m[i];
+		vector[i]=index%m1;
+		index/=m1;
 	}
 }
 
@@ -196,24 +215,27 @@ __device__ void vector_of(unsigned * vector, unsigned long index, unsigned * m, 
 // m - число сегментов по каждому из измерений
 // a - вектор минимальных координат точек
 // b - вектор максимальных координат точек
-__device__ void point_of(double * point, unsigned * vector,
-						 unsigned * m, double * a, double * b, int n)
+__device__ void point_of(double * point, unsigned * vector, size_t * m, double * a, double * b, size_t n)
 {
-	for(unsigned i=0;i<n;i++) point[i]=(a[i]*(m[i]-vector[i])+b[i]*vector[i])/m[i];
+	for(size_t i=0;i<n;i++) point[i]=(a[i]*(m[i]-vector[i])+b[i]*vector[i])/m[i];
 }
 
 /////////////////////////////////////////////////////////
 // Проверка принадлежности точки области, заданной ограничениями
 // x - координаты точки
 // f - набор проверочных функций
-__device__ bool check(double * x, unsigned n)
+// a - вектор минимальных координат точек
+// b - вектор максимальных координат точек
+__device__ bool check(double * x, double * a, double * b, size_t n)
 {
+	for(size_t i=0;i<n;i++) if(x[i]<a[i]&&x[i]<b[i]) return false;
+	for(size_t i=0;i<n;i++) if(x[i]>a[i]&&x[i]>b[i]) return false;
 	return f1(x,n)&&f2(x,n);
 }
 
-__device__ void copy(double * x, double * y, unsigned n)
+__device__ void copy(double * x, double * y, size_t n)
 {
-	for(unsigned i=0; i<n; i++) x[i] = y[i];
+	for(size_t i=0; i<n; i++) x[i] = y[i];
 }
 
 __global__ void kernel0(
@@ -222,11 +244,11 @@ __global__ void kernel0(
 	double * xPtr,
 	double * yPtr,
 	bool * ePtr,
-	unsigned * m,
+	size_t * m,
 	double * a,
 	double * b,
 	unsigned long total,
-	unsigned n)
+	size_t n)
 {
 	// Получаем идентификатор нити
 	int id = blockDim.x*blockIdx.x + threadIdx.x;
@@ -238,15 +260,15 @@ __global__ void kernel0(
 	bool * e = &ePtr[id];
 
 	*e = false;
-	for (unsigned long i = blockDim.x*blockIdx.x + threadIdx.x;
-		i < total;
-		i += blockDim.x*gridDim.x) {
-			vector_of(v, i, m, n);
+	for (unsigned long index = blockDim.x*blockIdx.x + threadIdx.x;
+		index < total;
+		index += blockDim.x*gridDim.x) {
+			vector_of(v, index, m, n);
 			point_of(t, v, m, a, b, n);
-			if(!check(t, n)) continue;
+			if(!check(t, a, b, n)) continue;
 			if(!*e) {
-				*y = w(t, n);
 				::copy(x, t, n);
+				*y = w(t, n);
 				*e = true;
 				continue;
 			}
@@ -264,11 +286,13 @@ __global__ void kernel1(
 	double * xPtr,
 	double * yPtr,
 	bool * ePtr,
-	unsigned mk,
+	double * a,
+	double * b,
 	double ak,
 	double bk,
-	unsigned k,
-	unsigned n)
+	size_t k,
+	size_t mk,
+	size_t n)
 {
 	// Получаем идентификатор нити
 	int id = blockDim.x*blockIdx.x + threadIdx.x;
@@ -280,14 +304,14 @@ __global__ void kernel1(
 
 	::copy(t, x0, n);
 	*e = false;
-	for (unsigned i = blockDim.x*blockIdx.x + threadIdx.x;
-		i <= mk;
-		i += blockDim.x*gridDim.x) {
-			t[k] = (ak*(mk-i)+bk*i)/mk;
-			if(!check(t, n)) continue;
+	for (size_t index = blockDim.x*blockIdx.x + threadIdx.x;
+		index <= mk;
+		index += blockDim.x*gridDim.x) {
+			t[k] = (ak*(mk-index)+bk*index)/mk;
+			if(!check(t, a, b, n)) continue;
 			if(!*e) {
-				*y = w(t, n);
 				*x = t[k];
+				*y = w(t, n);
 				*e = true;
 				continue;
 			}
@@ -303,9 +327,10 @@ int main(int argc, char* argv[])
 {
 	// http://stackoverflow.com/questions/2236197/what-is-the-easiest-way-to-initialize-a-stdvector-with-hardcoded-elements
 
-	unsigned n=_n;
+	unsigned count=_count;
+	size_t n=_n;
 	double e=_e;
-	thrust::host_vector<unsigned> hm(_m, _m + sizeof(_m) / sizeof(_m[0]) );
+	thrust::host_vector<size_t> hm(_m, _m + sizeof(_m) / sizeof(_m[0]) );
 	thrust::host_vector<double> ha(_a, _a + sizeof(_a) / sizeof(_a[0]) );
 	thrust::host_vector<double> hb(_b, _b + sizeof(_b) / sizeof(_b[0]) );
 
@@ -329,6 +354,7 @@ int main(int argc, char* argv[])
 			std::cout << "Используя алгоритм одномерной оптимизации по направлению" << std::endl;
 			std::cout << "(Алгоритм деления значений аргумента функции)" << std::endl;
 			//			std::cout << "\t-n <размерность пространства>" << std::endl;
+			std::cout << "\t-c <количество повторений алгоритма для замера времени>" << std::endl;
 			std::cout << "\t-m <число сегментов по каждому из измерений>" << std::endl;
 			std::cout << "\t-a <минимальные координаты по каждому из измерений>" << std::endl;
 			std::cout << "\t-b <максимальные координаты по каждому из измерений>" << std::endl;
@@ -342,18 +368,19 @@ int main(int argc, char* argv[])
 		else if(strcmp(argv[i],"-notrace")==0) trace_mode = NOTRACE;
 		//		else if(strcmp(argv[i],"-n")==0) n = atoi(argv[++i]);
 		else if(strcmp(argv[i],"-e")==0) e = atof(argv[++i]);
+		else if(strcmp(argv[i],"-c")==0) count = atoi(argv[++i]);
 		else if(strcmp(argv[i],"-m")==0) {
 			std::istringstream ss(argv[++i]);
 			hm.clear();
-			for(unsigned i=0;i<n;i++) hm.push_back(atoi(argv[++i]));
+			for(size_t i=0;i<n;i++) hm.push_back(atoi(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-a")==0) {
 			ha.clear();
-			for(unsigned i=0;i<n;i++) ha.push_back(atof(argv[++i]));
+			for(size_t i=0;i<n;i++) ha.push_back(atof(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-b")==0) {
 			hb.clear();
-			for(unsigned i=0;i<n;i++) hb.push_back(atof(argv[++i]));
+			for(size_t i=0;i<n;i++) hb.push_back(atof(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-input")==0) input_file_name = argv[++i];
 		else if(strcmp(argv[i],"-output")==0) output_file_name = argv[++i];
@@ -371,7 +398,7 @@ int main(int argc, char* argv[])
 
 		std::cout << "Введите число сегментов по каждому из измерений m[" << n << "]:"<< std::endl;
 		hm.clear();
-		for(unsigned i=0;i<n;i++)
+		for(size_t i=0;i<n;i++)
 		{
 			int x; 
 			std::cin >> x;
@@ -380,7 +407,7 @@ int main(int argc, char* argv[])
 
 		std::cout << "Введите минимальные координаты по каждому из измерений a[" << n << "]:"<< std::endl;
 		ha.clear();
-		for(unsigned i=0;i<n;i++)
+		for(size_t i=0;i<n;i++)
 		{
 			double x; 
 			std::cin >> x;
@@ -389,7 +416,7 @@ int main(int argc, char* argv[])
 
 		std::cout << "Введите максимальные координаты по каждому из измерений b[" << n << "]:"<< std::endl;
 		hb.clear();
-		for(unsigned i=0;i<n;i++)
+		for(size_t i=0;i<n;i++)
 		{
 			double x; 
 			std::cin >> x;
@@ -397,6 +424,7 @@ int main(int argc, char* argv[])
 		}
 
 		std::cout << "Введите точность вычислений:"<< std::endl; std::cin >> e;
+		std::cout << "Введите количество повторений алгоритма для замера времени:"<< std::endl; std::cin >> count;
 	}
 
 	// Find/set the device.
@@ -413,20 +441,17 @@ int main(int argc, char* argv[])
 	int minor = THRUST_MINOR_VERSION;
 
 	std::cout << "Thrust v" << major << "." << minor << std::endl;
-	std::cout << "Размерность пространства : " << n << std::endl;
-	std::cout << "Число сегментов          : "; for(unsigned i=0;i<hm.size();i++) std::cout << hm[i] << " "; std::cout << std::endl; 
-	std::cout << "Минимальные координаты   : "; for(unsigned i=0;i<ha.size();i++) std::cout << ha[i] << " "; std::cout << std::endl; 
-	std::cout << "Максимальные координаты  : "; for(unsigned i=0;i<hb.size();i++) std::cout << hb[i] << " "; std::cout << std::endl; 
-	std::cout << "Точность вычислений      : " << e << std::endl;
 
-	thrust::device_vector<unsigned> m(hm);
+	thrust::device_vector<size_t> m(hm);
 	thrust::device_vector<double> a(ha);
 	thrust::device_vector<double> b(hb);
 
-	for(unsigned i=0;i<m.size();i++) assert(m[i]>2);
+	for(size_t i=0;i<m.size();i++) assert(m[i]>2);
 
 	// Алгоритм
-	unsigned mMax = thrust::reduce(m.begin(), m.end(), 0u, max_functor<unsigned>());
+	clock_t time = clock();
+
+	size_t mMax = thrust::reduce(m.begin(), m.end(), 0, max_functor<size_t>());
 
 	// Определим оптимальное разбиения на процессы, нити
 
@@ -434,120 +459,145 @@ int main(int argc, char* argv[])
 	int threads = (blockSize > 0)? blockSize : thrust::min(15, (int)pow(mMax+1,0.333333));
 
 	// Аллокируем память для параллельных вычислений
+	thrust::host_vector<double> hyArray(blocks*threads);
 	thrust::device_vector<unsigned> vArray(blocks*threads*n);
 	thrust::device_vector<double> tArray(blocks*threads*n);
 	thrust::device_vector<double> xArray(blocks*threads*n);
 	thrust::device_vector<double> yArray(blocks*threads);
 	thrust::device_vector<bool> eArray(blocks*threads);
-	thrust::host_vector<double> hyArray(blocks*threads);
 
 	unsigned * vPtr = thrust::raw_pointer_cast(&vArray[0]);
 	double * tPtr = thrust::raw_pointer_cast(&tArray[0]);
 	double * xPtr = thrust::raw_pointer_cast(&xArray[0]);
 	double * yPtr = thrust::raw_pointer_cast(&yArray[0]);
 	bool * ePtr = thrust::raw_pointer_cast(&eArray[0]);
-	unsigned * mPtr = thrust::raw_pointer_cast(&m[0]);
+	size_t * mPtr = thrust::raw_pointer_cast(&m[0]);
 	double * aPtr = thrust::raw_pointer_cast(&a[0]);
 	double * bPtr = thrust::raw_pointer_cast(&b[0]);
 
-	thrust::host_vector<double> hx(n);
-	thrust::device_vector<double> x1(n);
-
 	// Алгоритм
 
+	thrust::host_vector<double> hx(n);
+
 	thrust::device_vector<double> x(n);
+	thrust::device_vector<double> x1(n);
 	double y;
 	double * xPtr0 = thrust::raw_pointer_cast(&x[0]);
 
-	while(true)
+	if(trace_mode==TRACE&&count==1) std::cout << "for #1" << std::endl; 
+	for(unsigned s=0; s<count; s++)
 	{
-		unsigned long total=total_of(m);
-
-		// Находим первую точку в области, заданной ограничениями
-		kernel0<<< blocks, threads >>>(vPtr, tPtr, xPtr, yPtr, ePtr, mPtr, aPtr, bPtr, total, n);
-		thrust::copy(yArray.begin(), yArray.end(), hyArray.begin());
-
-		auto it = thrust::find(eArray.begin(), eArray.end(), true);
-		if(it>=eArray.end())
+		if(trace_mode==TRACE&&count==1) std::cout << "while #1" << std::endl; 
+		while(true)
 		{
-			for(unsigned i=0; i<n; i++) m[i]<<=1u;
-			continue;
-		}
+			// Находим первую точку в области, заданной ограничениями
+			unsigned long total=total_of(m);
 
-		int index = thrust::distance(eArray.begin(), it++);
-		y=hyArray[index];
-		thrust::copy(&xArray[index*n], &xArray[index*n+n], x.begin());
+			if(trace_mode==TRACE&&count==1) std::cout << "kernel0" << std::endl; 
+			kernel0<<< blocks, threads >>>(vPtr, tPtr, xPtr, yPtr, ePtr, mPtr, aPtr, bPtr, total, n);
+			thrust::copy(yArray.begin(), yArray.end(), hyArray.begin());
 
-		while((it = thrust::find(it, eArray.end(), true)) < eArray.end())
-		{
-			int index = thrust::distance(eArray.begin(), it++);
-			double y1=hyArray[index];
-			if(y<y1) continue;
-			y=y1;
-			thrust::copy(&xArray[index*n], &xArray[index*n+n], x.begin());
-		}
-		break;
-	}
-
-	while(true)
-	{
-		// Находим следующую точку в области, заданной ограничениями
-		// Используя алгоритм одномерной оптимизации по направлению
-
-		thrust::copy(x.begin(), x.end(), x1.begin()); // Сохранение значения последней точки
-
-		// Цикл по измерениям
-		for(unsigned k=0; k<n; k++)
-		{
-			// Алгоритм одномерной оптимизации по направлению
-			double ak = a[k];
-			double bk = b[k];
-			unsigned mk = m[k];
-			while(true)
+			auto it = thrust::find(eArray.begin(), eArray.end(), true);
+			if(it>=eArray.end())
 			{
-				kernel1<<< blocks, threads >>>(xPtr0, tPtr, xPtr, yPtr, ePtr, mk, ak, bk, k, n);
-				thrust::copy(yArray.begin(), yArray.end(), hyArray.begin());
-
-				// Находим первую точку в области, заданной ограничениями
-				auto it = thrust::find(eArray.begin(), eArray.end(), true);
-				
-				assert(it<eArray.end());
-
-				int index = thrust::distance(eArray.begin(), it++);
-				y=hyArray[index];
-				thrust::copy(&xArray[index], &xArray[index+1], &x[k]);
-
-				while((it = thrust::find(it, eArray.end(), true)) < eArray.end())
-				{
-					int index = thrust::distance(eArray.begin(), it++);
-					if(index>mk) break;
-					double y1=hyArray[index];
-					if(y<y1) continue;
-					y=y1;
-					thrust::copy(&xArray[index], &xArray[index+1], &x[k]);
-				}
-
-				if(thrust::max(ak-bk,bk-ak)<e) break;
-				double aa = ak;
-				double bb = bk;
-				double xx = x[k];
-				ak=thrust::max(aa,xx-(bb-aa)/mk);
-				bk=thrust::min(bb,xx+(bb-aa)/mk);
+				for(size_t i=0; i<n; i++) m[i]<<=1u;
+				continue;
 			}
+
+			size_t index = thrust::distance(eArray.begin(), it++);
+			y=hyArray[index];
+			thrust::copy(&xArray[index*n], &xArray[index*n+n], x.begin());
+
+			while((it = thrust::find(it, eArray.end(), true)) < eArray.end())
+			{
+				size_t index = thrust::distance(eArray.begin(), it++);
+				double y1=hyArray[index];
+				if(y<y1) continue;
+				y=y1;
+				thrust::copy(&xArray[index*n], &xArray[index*n+n], x.begin());
+				if(trace_mode==TRACE&&count==1) {
+					thrust::copy(x.begin(), x.end(), hx.begin());
+					for(size_t i=0;i<hx.size();i++) std::cout << hx[i] << " "; 
+				}
+				if(trace_mode==TRACE&&count==1) std::cout << "-> " << y << std::endl; 
+			}
+			break;
 		}
 
-		if(trace_mode==TRACE) {
-			thrust::copy(x.begin(), x.end(), hx.begin());
-			for(unsigned i=0;i<hx.size();i++) std::cout << hx[i] << " "; 
-		}
-		if(trace_mode==TRACE) std::cout << "-> " << y << std::endl; 
+		if(trace_mode==TRACE&&count==1) std::cout << "while #2" << std::endl; 
+		while(true)
+		{
+			// Находим следующую точку в области, заданной ограничениями
+			// Используя алгоритм одномерной оптимизации по направлению
 
-		if(delta(x,x1)<e) break;
+			thrust::copy(x.begin(), x.end(), x1.begin()); // Сохранение значения последней точки
+
+			// Цикл по измерениям
+			if(trace_mode==TRACE&&count==1) std::cout << "for #2" << std::endl; 
+			for(size_t k=0; k<n; k++)
+			{
+				// Алгоритм одномерной оптимизации по направлению
+				double ak = thrust::min(a[k],b[k]);
+				double bk = thrust::max(a[k],b[k]);
+				size_t mk = m[k];
+				while(true)
+				{
+					if(trace_mode==TRACE&&count==1) std::cout << "kernel1" << std::endl; 
+					kernel1<<< blocks, threads >>>(xPtr0, tPtr, xPtr, yPtr, ePtr, aPtr, bPtr, ak, bk, k, mk, n);
+					thrust::copy(yArray.begin(), yArray.end(), hyArray.begin());
+
+					// Находим первую точку в области, заданной ограничениями
+					auto it = thrust::find(eArray.begin(), eArray.end(), true);
+				
+					assert(it<eArray.end());
+
+					size_t index = thrust::distance(eArray.begin(), it++);
+					y=hyArray[index];
+					thrust::copy(&xArray[index], &xArray[index+1], &x[k]);
+
+					while((it = thrust::find(it, eArray.end(), true)) < eArray.end())
+					{
+						size_t index = thrust::distance(eArray.begin(), it++);
+						if(index>mk) break;
+						double y1=hyArray[index];
+						if(y<y1) continue;
+						y=y1;
+						thrust::copy(&xArray[index], &xArray[index+1], &x[k]);
+						if(trace_mode==TRACE&&count==1) {
+							thrust::copy(x.begin(), x.end(), hx.begin());
+							for(size_t i=0;i<hx.size();i++) std::cout << hx[i] << " "; 
+						}
+						if(trace_mode==TRACE&&count==1) std::cout << "-> " << y << std::endl; 
+					}
+
+					double dd = thrust::max(ak-bk,bk-ak);
+					double cc = thrust::max(thrust::max(ak,-ak),thrust::max(-bk,bk));
+					if(dd<=cc*e) break;
+					double xk = x[k];
+					ak=thrust::max(ak,xk-dd/mk);
+					bk=thrust::min(bk,xk+dd/mk);
+				}
+			}
+
+			double dd = delta(x,x1);
+			double cc = thrust::max(module(x),module(x1));
+			if(dd<=cc*e) break;
+		}
 	}
+
+	time = clock() - time;
+	double seconds = ((double)time)/CLOCKS_PER_SEC/count;
 
 	thrust::copy(x.begin(), x.end(), hx.begin());
-	std::cout << "Точка минимума           : "; for(unsigned i=0;i<hx.size();i++) std::cout << hx[i] << " "; std::cout << std::endl; 
+	std::cout << "Исполняемый файл         : " << argv[0] << std::endl;
+	std::cout << "Размерность пространства : " << n << std::endl;
+	std::cout << "Число сегментов          : "; for(size_t i=0;i<hm.size();i++) std::cout << hm[i] << " "; std::cout << std::endl; 
+	std::cout << "Минимальные координаты   : "; for(size_t i=0;i<ha.size();i++) std::cout << ha[i] << " "; std::cout << std::endl; 
+	std::cout << "Максимальные координаты  : "; for(size_t i=0;i<hb.size();i++) std::cout << hb[i] << " "; std::cout << std::endl; 
+	std::cout << "Точность вычислений      : " << e << std::endl;
+	std::cout << "Точка минимума           : "; for(size_t i=0;i<hx.size();i++) std::cout << hx[i] << " "; std::cout << std::endl; 
 	std::cout << "Минимальное значение     : " << y << std::endl; 
+	std::cout << "Время вычислений (сек.)  : " << seconds << std::endl; 
 
 	getchar();
 	getchar();

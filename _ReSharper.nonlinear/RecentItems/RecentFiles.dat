@@ -1,46 +1,46 @@
 ﻿<RecentFiles>
   <RecentFiles>
-    <File id="C8761A1D-74FC-442E-AD02-C95622F4552B/f:cpuHookAndJeeves.cpp" caret="8688" fromTop="0" />
-    <File id="38F91A68-F3E5-49CB-99B7-7F8EFDB1A399/f:cudaHookAndJeeves.cu" caret="11226" fromTop="20" />
-    <File id="11DD8066-72B1-43BE-84BE-1674DA572346/f:cpucyclic.cpp" caret="7767" fromTop="5" />
-    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="7600" fromTop="3" />
-    <File id="67CAE684-E25C-44E5-B172-21A10D6A44D0/f:cudacyclic.cu" caret="9690" fromTop="7" />
-    <File id="095EBB84-A4D6-40B4-8056-E0926F97D6C8/f:cudadichotomy.cu" caret="9523" fromTop="14" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="8275" fromTop="5" />
-    <File id="4C1C2823-96AD-4811-B18D-6D43A29D350B/f:cudacyclic2.cu" caret="9173" fromTop="12" />
     <File id="68441645-3B52-4AEF-B2B4-CA1C3B31EF28/f:Базара М., Шетти К. - Нелинейное программирование - 1982.pdf/s:..?Базара М., Шетти К. - Нелинейное программирование - 1982.pdf" caret="0" fromTop="0" />
-    <File id="258BC06A-7184-4234-A79B-B4C6A86611FB/f:cudaHookAndJeeves2.cu" caret="0" fromTop="0" />
+    <File id="C8761A1D-74FC-442E-AD02-C95622F4552B/f:cpuHookAndJeeves.cpp" caret="14907" fromTop="14" />
+    <File id="38F91A68-F3E5-49CB-99B7-7F8EFDB1A399/f:cudaHookAndJeeves.cu" caret="17775" fromTop="0" />
+    <File id="258BC06A-7184-4234-A79B-B4C6A86611FB/f:cudaHookAndJeeves2.cu" caret="20094" fromTop="627" />
+    <File id="4C1C2823-96AD-4811-B18D-6D43A29D350B/f:cudacyclic2.cu" caret="8509" fromTop="9" />
+    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="13420" fromTop="0" />
+    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="16016" fromTop="14" />
+    <File id="095EBB84-A4D6-40B4-8056-E0926F97D6C8/f:cudadichotomy.cu" caret="15114" fromTop="0" />
+    <File id="67CAE684-E25C-44E5-B172-21A10D6A44D0/f:cudacyclic.cu" caret="7551" fromTop="13" />
+    <File id="11DD8066-72B1-43BE-84BE-1674DA572346/f:cpucyclic.cpp" caret="6175" fromTop="188" />
   </RecentFiles>
   <RecentEdits>
-    <File id="67CAE684-E25C-44E5-B172-21A10D6A44D0/f:cudacyclic.cu" caret="5125" fromTop="6" />
-    <File id="4C1C2823-96AD-4811-B18D-6D43A29D350B/f:cudacyclic2.cu" caret="4775" fromTop="19" />
-    <File id="095EBB84-A4D6-40B4-8056-E0926F97D6C8/f:cudadichotomy.cu" caret="4962" fromTop="10" />
-    <File id="38F91A68-F3E5-49CB-99B7-7F8EFDB1A399/f:cudaHookAndJeeves.cu" caret="5165" fromTop="15" />
-    <File id="258BC06A-7184-4234-A79B-B4C6A86611FB/f:cudaHookAndJeeves2.cu" caret="5450" fromTop="15" />
-    <File id="095EBB84-A4D6-40B4-8056-E0926F97D6C8/f:cudadichotomy.cu" caret="59" fromTop="0" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="69" fromTop="1" />
-    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="69" fromTop="1" />
-    <File id="258BC06A-7184-4234-A79B-B4C6A86611FB/f:cudaHookAndJeeves2.cu" caret="14403" fromTop="11" />
-    <File id="258BC06A-7184-4234-A79B-B4C6A86611FB/f:cudaHookAndJeeves2.cu" caret="9236" fromTop="16" />
-    <File id="258BC06A-7184-4234-A79B-B4C6A86611FB/f:cudaHookAndJeeves2.cu" caret="8926" fromTop="6" />
-    <File id="258BC06A-7184-4234-A79B-B4C6A86611FB/f:cudaHookAndJeeves2.cu" caret="9849" fromTop="8" />
-    <File id="38F91A68-F3E5-49CB-99B7-7F8EFDB1A399/f:cudaHookAndJeeves.cu" caret="5967" fromTop="6" />
-    <File id="258BC06A-7184-4234-A79B-B4C6A86611FB/f:cudaHookAndJeeves2.cu" caret="5826" fromTop="9" />
-    <File id="C8761A1D-74FC-442E-AD02-C95622F4552B/f:cpuHookAndJeeves.cpp" caret="4160" fromTop="9" />
-    <File id="C8761A1D-74FC-442E-AD02-C95622F4552B/f:cpuHookAndJeeves.cpp" caret="7635" fromTop="8" />
-    <File id="38F91A68-F3E5-49CB-99B7-7F8EFDB1A399/f:cudaHookAndJeeves.cu" caret="9476" fromTop="8" />
-    <File id="258BC06A-7184-4234-A79B-B4C6A86611FB/f:cudaHookAndJeeves2.cu" caret="14959" fromTop="7" />
-    <File id="258BC06A-7184-4234-A79B-B4C6A86611FB/f:cudaHookAndJeeves2.cu" caret="10682" fromTop="8" />
-    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="8275" fromTop="5" />
-    <File id="4C1C2823-96AD-4811-B18D-6D43A29D350B/f:cudacyclic2.cu" caret="9173" fromTop="12" />
-    <File id="38F91A68-F3E5-49CB-99B7-7F8EFDB1A399/f:cudaHookAndJeeves.cu" caret="10350" fromTop="14" />
-    <File id="095EBB84-A4D6-40B4-8056-E0926F97D6C8/f:cudadichotomy.cu" caret="9523" fromTop="14" />
-    <File id="67CAE684-E25C-44E5-B172-21A10D6A44D0/f:cudacyclic.cu" caret="9690" fromTop="7" />
-    <File id="C8761A1D-74FC-442E-AD02-C95622F4552B/f:cpuHookAndJeeves.cpp" caret="8533" fromTop="16" />
-    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="7600" fromTop="3" />
-    <File id="11DD8066-72B1-43BE-84BE-1674DA572346/f:cpucyclic.cpp" caret="7767" fromTop="5" />
-    <File id="258BC06A-7184-4234-A79B-B4C6A86611FB/f:cudaHookAndJeeves2.cu" caret="11261" fromTop="12" />
-    <File id="38F91A68-F3E5-49CB-99B7-7F8EFDB1A399/f:cudaHookAndJeeves.cu" caret="11114" fromTop="17" />
-    <File id="C8761A1D-74FC-442E-AD02-C95622F4552B/f:cpuHookAndJeeves.cpp" caret="8943" fromTop="15" />
+    <File id="095EBB84-A4D6-40B4-8056-E0926F97D6C8/f:cudadichotomy.cu" caret="15530" fromTop="15" />
+    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="14413" fromTop="14" />
+    <File id="38F91A68-F3E5-49CB-99B7-7F8EFDB1A399/f:cudaHookAndJeeves.cu" caret="16720" fromTop="13" />
+    <File id="258BC06A-7184-4234-A79B-B4C6A86611FB/f:cudaHookAndJeeves2.cu" caret="17681" fromTop="9" />
+    <File id="67CAE684-E25C-44E5-B172-21A10D6A44D0/f:cudacyclic.cu" caret="16429" fromTop="12" />
+    <File id="4C1C2823-96AD-4811-B18D-6D43A29D350B/f:cudacyclic2.cu" caret="16725" fromTop="12" />
+    <File id="38F91A68-F3E5-49CB-99B7-7F8EFDB1A399/f:cudaHookAndJeeves.cu" caret="17432" fromTop="16" />
+    <File id="258BC06A-7184-4234-A79B-B4C6A86611FB/f:cudaHookAndJeeves2.cu" caret="19192" fromTop="22" />
+    <File id="38F91A68-F3E5-49CB-99B7-7F8EFDB1A399/f:cudaHookAndJeeves.cu" caret="19117" fromTop="20" />
+    <File id="11DD8066-72B1-43BE-84BE-1674DA572346/f:cpucyclic.cpp" caret="13828" fromTop="8" />
+    <File id="67CAE684-E25C-44E5-B172-21A10D6A44D0/f:cudacyclic.cu" caret="16772" fromTop="18" />
+    <File id="4C1C2823-96AD-4811-B18D-6D43A29D350B/f:cudacyclic2.cu" caret="17066" fromTop="12" />
+    <File id="38F91A68-F3E5-49CB-99B7-7F8EFDB1A399/f:cudaHookAndJeeves.cu" caret="17775" fromTop="7" />
+    <File id="258BC06A-7184-4234-A79B-B4C6A86611FB/f:cudaHookAndJeeves2.cu" caret="19533" fromTop="10" />
+    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="14663" fromTop="11" />
+    <File id="4C1C2823-96AD-4811-B18D-6D43A29D350B/f:cudacyclic2.cu" caret="15628" fromTop="14" />
+    <File id="4C1C2823-96AD-4811-B18D-6D43A29D350B/f:cudacyclic2.cu" caret="17344" fromTop="9" />
+    <File id="258BC06A-7184-4234-A79B-B4C6A86611FB/f:cudaHookAndJeeves2.cu" caret="17858" fromTop="14" />
+    <File id="258BC06A-7184-4234-A79B-B4C6A86611FB/f:cudaHookAndJeeves2.cu" caret="19758" fromTop="16" />
+    <File id="258BC06A-7184-4234-A79B-B4C6A86611FB/f:cudaHookAndJeeves2.cu" caret="21805" fromTop="18" />
+    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="13930" fromTop="20" />
+    <File id="15AD4D8C-5521-4E5E-A867-398B1A84220B/f:cudadichotomy2.cu" caret="16235" fromTop="21" />
+    <File id="095EBB84-A4D6-40B4-8056-E0926F97D6C8/f:cudadichotomy.cu" caret="16980" fromTop="21" />
+    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="13930" fromTop="26" />
+    <File id="BF8FCE1A-F9F8-49B7-901C-FC6B807C0004/f:cpudichotomy.cpp" caret="13912" fromTop="21" />
+    <File id="095EBB84-A4D6-40B4-8056-E0926F97D6C8/f:cudadichotomy.cu" caret="17074" fromTop="15" />
+    <File id="095EBB84-A4D6-40B4-8056-E0926F97D6C8/f:cudadichotomy.cu" caret="14837" fromTop="12" />
+    <File id="095EBB84-A4D6-40B4-8056-E0926F97D6C8/f:cudadichotomy.cu" caret="15038" fromTop="17" />
+    <File id="67CAE684-E25C-44E5-B172-21A10D6A44D0/f:cudacyclic.cu" caret="7581" fromTop="17" />
+    <File id="67CAE684-E25C-44E5-B172-21A10D6A44D0/f:cudacyclic.cu" caret="7433" fromTop="13" />
   </RecentEdits>
 </RecentFiles>
