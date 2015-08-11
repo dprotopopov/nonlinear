@@ -1,5 +1,9 @@
 // Алгоритм циклического покоординатного спуска
 // Используя алгоритм одномерной оптимизации по направлению
+// Базара М., Шетти К.
+// Нелинейное программирование. Теория и алгоритмы:
+// Пер. с англ. - М.: Мир, 1982.
+// 583 с.
 
 #define _CRT_SECURE_NO_WARNINGS
 #define _SCL_SECURE_NO_WARNINGS
@@ -26,8 +30,7 @@ bool check(std::vector<double> x, std::vector<check_func *> f);
 double delta(std::vector<double> x,std::vector<double> y);
 unsigned long total_of(std::vector<unsigned> m);
 std::vector<unsigned> vector_of(unsigned long index, std::vector<unsigned> m);
-std::vector<double> point_of(std::vector<unsigned> vector,
-							 std::vector<unsigned> m, std::vector<double> a, std::vector<double> b);
+std::vector<double> point_of(std::vector<unsigned> vector, std::vector<unsigned> m, std::vector<double> a, std::vector<double> b);
 
 template <typename T>
 T inc_functor(T value)  
@@ -117,7 +120,7 @@ bool f2(std::vector<double> x)
 // Искомая функция
 double w(std::vector<double> x)
 {
-	static const double _c[] = {2, 3};
+	const double _c[] = {7.0/3, 10.0/3};
 
 	std::vector<double> c(_c, _c + sizeof(_c) / sizeof(_c[0]) );
 	std::vector<double> sub(std::max(x.size(),c.size()));
@@ -219,10 +222,10 @@ int main(int argc, char* argv[])
 	// http://stackoverflow.com/questions/2236197/what-is-the-easiest-way-to-initialize-a-stdvector-with-hardcoded-elements
 	unsigned n=_n;
 	double e=_e;
-	std::vector<unsigned> hm(_m, _m + sizeof(_m) / sizeof(_m[0]) );
-	std::vector<double> ha(_a, _a + sizeof(_a) / sizeof(_a[0]) );
-	std::vector<double> hb(_b, _b + sizeof(_b) / sizeof(_b[0]) );
-	std::vector<check_func *> hf(_f, _f + sizeof(_f) / sizeof(_f[0]) );
+	std::vector<unsigned> m(_m, _m + sizeof(_m) / sizeof(_m[0]) );
+	std::vector<double> a(_a, _a + sizeof(_a) / sizeof(_a[0]) );
+	std::vector<double> b(_b, _b + sizeof(_b) / sizeof(_b[0]) );
+	std::vector<check_func *> f(_f, _f + sizeof(_f) / sizeof(_f[0]) );
 
 	char * input_file_name = NULL;
 	char * output_file_name = NULL;
@@ -236,6 +239,7 @@ int main(int argc, char* argv[])
 	{
 		if(strcmp(argv[i],"-help")==0) 
 		{
+			std::cout << "Usage :\t" << argv[0] << " [...] [-input <inputfile>] [-output <outputfile>]" << std::endl;
 			std::cout << "Алгоритм циклического покоординатного спуска" << std::endl;
 			std::cout << "Используя алгоритм одномерной оптимизации по направлению" << std::endl;
 			std::cout << "(Алгоритм деления значений аргумента функции)" << std::endl;
@@ -255,16 +259,16 @@ int main(int argc, char* argv[])
 		else if(strcmp(argv[i],"-e")==0) e = atof(argv[++i]);
 		else if(strcmp(argv[i],"-m")==0) {
 			std::istringstream ss(argv[++i]);
-			hm.clear();
-			for(unsigned i=0;i<n;i++) hm.push_back(atoi(argv[++i]));
+			m.clear();
+			for(unsigned i=0;i<n;i++) m.push_back(atoi(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-a")==0) {
-			ha.clear();
-			for(unsigned i=0;i<n;i++) ha.push_back(atof(argv[++i]));
+			a.clear();
+			for(unsigned i=0;i<n;i++) a.push_back(atof(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-b")==0) {
-			hb.clear();
-			for(unsigned i=0;i<n;i++) hb.push_back(atof(argv[++i]));
+			b.clear();
+			for(unsigned i=0;i<n;i++) b.push_back(atof(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-input")==0) input_file_name = argv[++i];
 		else if(strcmp(argv[i],"-output")==0) output_file_name = argv[++i];
@@ -278,45 +282,44 @@ int main(int argc, char* argv[])
 		//  std::cout << "Введите размерность пространства:"<< std::endl; std::cin >> n;
 
 		std::cout << "Введите число сегментов по каждому из измерений m[" << n << "]:"<< std::endl;
-		hm.clear();
+		m.clear();
 		for(unsigned i=0;i<n;i++)
 		{
 			int x; std::cin >> x;
-			hm.push_back(x);
+			m.push_back(x);
 		}
 
 		std::cout << "Введите минимальные координаты по каждому из измерений a[" << n << "]:"<< std::endl;
-		ha.clear();
+		a.clear();
 		for(unsigned i=0;i<n;i++)
 		{
 			double x; std::cin >> x;
-			ha.push_back(x);
+			a.push_back(x);
 		}
 
 		std::cout << "Введите максимальные координаты по каждому из измерений b[" << n << "]:"<< std::endl;
-		hb.clear();
+		b.clear();
 		for(unsigned i=0;i<n;i++)
 		{
 			double x; std::cin >> x;
-			hb.push_back(x);
+			b.push_back(x);
 		}
 
 		std::cout << "Введите точность вычислений:"<< std::endl; std::cin >> e;
 	}
 
 	std::cout << "Размерность пространства : " << n << std::endl;
-	std::cout << "Число сегментов          : "; for(unsigned i=0;i<hm.size();i++) std::cout << hm[i] << " "; std::cout << std::endl; 
-	std::cout << "Минимальные координаты   : "; for(unsigned i=0;i<ha.size();i++) std::cout << ha[i] << " "; std::cout << std::endl; 
-	std::cout << "Максимальные координаты  : "; for(unsigned i=0;i<hb.size();i++) std::cout << hb[i] << " "; std::cout << std::endl; 
+	std::cout << "Число сегментов          : "; for(unsigned i=0;i<m.size();i++) std::cout << m[i] << " "; std::cout << std::endl; 
+	std::cout << "Минимальные координаты   : "; for(unsigned i=0;i<a.size();i++) std::cout << a[i] << " "; std::cout << std::endl; 
+	std::cout << "Максимальные координаты  : "; for(unsigned i=0;i<b.size();i++) std::cout << b[i] << " "; std::cout << std::endl; 
 	std::cout << "Точность вычислений      : " << e << std::endl;
 
-	for(unsigned i=0;i<hm.size();i++) assert(hm[i]>2);
+	for(unsigned i=0;i<m.size();i++) assert(m[i]>2);
 
 // Алгоритм
-	std::vector<unsigned> m(hm);
-	std::vector<double> a(ha);
-	std::vector<double> b(hb);
-	std::vector<check_func *> f(hf);
+
+	std::vector<double> t(n);
+	std::vector<double> x1(n);
 
 	// Находим первую точку в области, заданной ограничениями
 	std::vector<double> x;
@@ -333,7 +336,7 @@ int main(int argc, char* argv[])
 		}
 		if(index>=total)
 		{
-			for(int i=0; i<n; i++) m[i]*=2;
+			for(unsigned i=0; i<n; i++) m[i]<<=1u;
 			continue;
 		}
 		y = (*w)(x);
@@ -345,10 +348,10 @@ int main(int argc, char* argv[])
 		// Находим следующую точку в области, заданной ограничениями
 		// Используя алгоритм одномерной оптимизации по направлению
 		
-		std::vector<double> x1(x); // Сохранение значения последней точки
+		std::copy(x.begin(), x.end(), x1.begin()); // Сохранение значения последней точки
 
 		// Цикл по измерениям
-		for(int k=0; k<n; k++)
+		for(unsigned k=0; k<n; k++)
 		{
 			// Алгоритм одномерной оптимизации по направлению
 			double ak = a[k];
@@ -356,15 +359,15 @@ int main(int argc, char* argv[])
 			unsigned mk = m[k];
 			while(true)
 			{
-				std::vector<double> xk(x);
+				std::copy(x.begin(), x.end(), t.begin());
 				for(int i=0; i<=mk; i++)
 				{
-					xk[k] = (ak*(mk-i)+bk*i)/mk;
-					if(!check(xk,f)) continue;
-					double yk = (*w)(xk);
+					t[k] = (ak*(mk-i)+bk*i)/mk;
+					if(!check(t,f)) continue;
+					double yk = (*w)(t);
 					if(yk>y) continue;
 					y = yk;
-					x[k] = xk[k];
+					x[k] = t[k];
 				}
 				if(std::max(ak-bk,bk-ak)<e) break;
 				double aa = ak;

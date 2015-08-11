@@ -1,4 +1,4 @@
-// https://ru.wikipedia.org/wiki/Дихотомия
+// Алгоритм многомерной оптимизации с использованием метода решёток
 
 #define _CRT_SECURE_NO_WARNINGS
 #define _SCL_SECURE_NO_WARNINGS
@@ -39,8 +39,7 @@ typedef double (value_func)(thrust::device_vector<double> x); // Профиль искомой
 double delta(thrust::device_vector<double> x,thrust::device_vector<double> y);
 unsigned long total_of(thrust::device_vector<unsigned> m);
 thrust::device_vector<unsigned> vector_of(unsigned long index, thrust::device_vector<unsigned> m);
-thrust::device_vector<double> point_of(thrust::device_vector<unsigned> vector,
-	thrust::device_vector<unsigned> m, thrust::device_vector<double> a, thrust::device_vector<double> b);
+thrust::device_vector<double> point_of(thrust::device_vector<unsigned> vector, thrust::device_vector<unsigned> m, thrust::device_vector<double> a, thrust::device_vector<double> b);
 
 template <typename T>
 struct inc_functor { 
@@ -143,7 +142,7 @@ bool f2(thrust::device_vector<double> x)
 // Искомая функция
 double w(thrust::device_vector<double> x)
 {
-	const double _c[] = {2, 3};
+	const double _c[] = {7.0/3, 10.0/3};
 
 	thrust::device_vector<double> c(_c, _c + sizeof(_c) / sizeof(_c[0]) );
 	thrust::device_vector<double> sub(thrust::max(x.size(),c.size()));
@@ -261,15 +260,16 @@ int main(int argc, char* argv[])
 	{
 		if(strcmp(argv[i],"-help")==0) 
 		{
+			std::cout << "Usage :\t" << argv[0] << " [...] [-input <inputfile>] [-output <outputfile>]" << std::endl;
+			std::cout << "Алгоритм многомерной оптимизации с использованием метода решёток" << std::endl;
 			std::cout << "Алгоритм деления значений аргумента функции" << std::endl;
 			//			std::cout << "\t-n <размерность пространства>" << std::endl;
 			std::cout << "\t-m <число сегментов по каждому из измерений>" << std::endl;
 			std::cout << "\t-a <минимальные координаты по каждому из измерений>" << std::endl;
 			std::cout << "\t-b <максимальные координаты по каждому из измерений>" << std::endl;
-			std::cout << "\t-e <очность вычислений>" << std::endl;
+			std::cout << "\t-e <точность вычислений>" << std::endl;
 			std::cout << "\t-ask/noask" << std::endl;
 			std::cout << "\t-trace/notrace" << std::endl;
-			std::cout << "\tСм. https://ru.wikipedia.org/wiki/Дихотомия" << std::endl;
 		}
 		else if(strcmp(argv[i],"-ask")==0) ask_mode = ASK;
 		else if(strcmp(argv[i],"-noask")==0) ask_mode = NOASK;
@@ -365,7 +365,7 @@ int main(int argc, char* argv[])
 		}
 		if(index>=total)
 		{
-			for(int i=0; i<n; i++) m[i]*=2;
+			for(unsigned i=0; i<n; i++) m[i]<<=1u;
 			continue;
 		}
 		y=(*w)(x);
@@ -376,7 +376,7 @@ int main(int argc, char* argv[])
 			if(!check(x1,f)) continue;
 			double y1 = (*w)(x1);
 			if(y1>y) continue;
-			x=x1;
+			thrust::copy(x1.begin(), x1.end(), x.begin());
 			y=y1;
 		}
 
@@ -400,7 +400,6 @@ int main(int argc, char* argv[])
 	thrust::host_vector<double> hx(x);
 	std::cout << "Точка минимума           : "; for(unsigned i=0;i<hx.size();i++) std::cout << hx[i] << " "; std::cout << std::endl; 
 	std::cout << "Минимальное значение     : " << y << std::endl; 
-	std::cout << "См. https://ru.wikipedia.org/wiki/Дихотомия" << std::endl;
 
 	getchar();
 	getchar();

@@ -13,6 +13,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cudacyclic", "cudacyclic\cu
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cudacyclic2", "cudacyclic2\cudacyclic2.vcxproj", "{4C1C2823-96AD-4811-B18D-6D43A29D350B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cpuHookAndJeeves", "cpuHookAndJeeves\cpuHookAndJeeves.vcxproj", "{C8761A1D-74FC-442E-AD02-C95622F4552B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cudaHookAndJeeves", "cudaHookAndJeeves\cudaHookAndJeeves.vcxproj", "{38F91A68-F3E5-49CB-99B7-7F8EFDB1A399}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cudaHookAndJeeves2", "cudaHookAndJeeves2\cudaHookAndJeeves2.vcxproj", "{258BC06A-7184-4234-A79B-B4C6A86611FB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{68441645-3B52-4AEF-B2B4-CA1C3B31EF28}"
+	ProjectSection(SolutionItems) = preProject
+		README.txt = README.txt
+		Базара М., Шетти К. - Нелинейное программирование - 1982.pdf = Базара М., Шетти К. - Нелинейное программирование - 1982.pdf
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -65,6 +77,28 @@ Global
 		{4C1C2823-96AD-4811-B18D-6D43A29D350B}.Release|Win32.Build.0 = Release|Win32
 		{4C1C2823-96AD-4811-B18D-6D43A29D350B}.Release|x64.ActiveCfg = Release|x64
 		{4C1C2823-96AD-4811-B18D-6D43A29D350B}.Release|x64.Build.0 = Release|x64
+		{C8761A1D-74FC-442E-AD02-C95622F4552B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C8761A1D-74FC-442E-AD02-C95622F4552B}.Debug|Win32.Build.0 = Debug|Win32
+		{C8761A1D-74FC-442E-AD02-C95622F4552B}.Debug|x64.ActiveCfg = Debug|Win32
+		{C8761A1D-74FC-442E-AD02-C95622F4552B}.Release|Win32.ActiveCfg = Release|Win32
+		{C8761A1D-74FC-442E-AD02-C95622F4552B}.Release|Win32.Build.0 = Release|Win32
+		{C8761A1D-74FC-442E-AD02-C95622F4552B}.Release|x64.ActiveCfg = Release|Win32
+		{38F91A68-F3E5-49CB-99B7-7F8EFDB1A399}.Debug|Win32.ActiveCfg = Debug|Win32
+		{38F91A68-F3E5-49CB-99B7-7F8EFDB1A399}.Debug|Win32.Build.0 = Debug|Win32
+		{38F91A68-F3E5-49CB-99B7-7F8EFDB1A399}.Debug|x64.ActiveCfg = Debug|x64
+		{38F91A68-F3E5-49CB-99B7-7F8EFDB1A399}.Debug|x64.Build.0 = Debug|x64
+		{38F91A68-F3E5-49CB-99B7-7F8EFDB1A399}.Release|Win32.ActiveCfg = Release|Win32
+		{38F91A68-F3E5-49CB-99B7-7F8EFDB1A399}.Release|Win32.Build.0 = Release|Win32
+		{38F91A68-F3E5-49CB-99B7-7F8EFDB1A399}.Release|x64.ActiveCfg = Release|x64
+		{38F91A68-F3E5-49CB-99B7-7F8EFDB1A399}.Release|x64.Build.0 = Release|x64
+		{258BC06A-7184-4234-A79B-B4C6A86611FB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{258BC06A-7184-4234-A79B-B4C6A86611FB}.Debug|Win32.Build.0 = Debug|Win32
+		{258BC06A-7184-4234-A79B-B4C6A86611FB}.Debug|x64.ActiveCfg = Debug|x64
+		{258BC06A-7184-4234-A79B-B4C6A86611FB}.Debug|x64.Build.0 = Debug|x64
+		{258BC06A-7184-4234-A79B-B4C6A86611FB}.Release|Win32.ActiveCfg = Release|Win32
+		{258BC06A-7184-4234-A79B-B4C6A86611FB}.Release|Win32.Build.0 = Release|Win32
+		{258BC06A-7184-4234-A79B-B4C6A86611FB}.Release|x64.ActiveCfg = Release|x64
+		{258BC06A-7184-4234-A79B-B4C6A86611FB}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

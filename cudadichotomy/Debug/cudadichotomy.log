@@ -1,7 +1,7 @@
-﻿Сборка начата 10.08.2015 22:48:52.
+﻿Сборка начата 11.08.2015 5:02:12.
      1>Проект "D:\Projects\nonlinear\cudadichotomy\cudadichotomy.vcxproj" в узле 3 (целевые объекты Rebuild).
      1>CudaClean:
-         cmd.exe /C "R:\Temp\tmp5924a3158f774be38e984d1b12d59dac.cmd"
+         cmd.exe /C "R:\Temp\tmp2fae789d9b46466ba9894720d86653cb.cmd"
          "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\nvcc.exe" -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile   -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\cudadichotomy.cu.obj "D:\Projects\nonlinear\cudadichotomy\cudadichotomy.cu" -clean
          
          D:\Projects\nonlinear\cudadichotomy>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\nvcc.exe" -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile   -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\cudadichotomy.cu.obj "D:\Projects\nonlinear\cudadichotomy\cudadichotomy.cu" -clean 
@@ -10,12 +10,11 @@
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\cl.exe /E /nologo /showIncludes /TP /D__CUDACC__ /DWIN32 /D_DEBUG /D_CONSOLE /D_MBCS /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin" /I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" /I. /FIcuda_runtime.h /c D:\Projects\nonlinear\cudadichotomy\cudadichotomy.cu 
        CudaBuild:
          Compiling CUDA source file cudadichotomy.cu...
-         cmd.exe /C "R:\Temp\tmp3059702277ae4aed9e3f6541d568a047.cmd"
+         cmd.exe /C "R:\Temp\tmpd3e1995c0f984b2896eb7f2d1ba698ee.cmd"
          "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2012 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile -cudart static  -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\cudadichotomy.cu.obj "D:\Projects\nonlinear\cudadichotomy\cudadichotomy.cu"
          
          D:\Projects\nonlinear\cudadichotomy>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\nvcc.exe" -gencode=arch=compute_20,code=\"sm_20,compute_20\" --use-local-env --cl-version 2012 -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile -cudart static  -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\cudadichotomy.cu.obj "D:\Projects\nonlinear\cudadichotomy\cudadichotomy.cu" 
          cudadichotomy.cu
-     1>D:/Projects/nonlinear/cudadichotomy/cudadichotomy.cu(368): warning C4018: <: несоответствие типов со знаком и без знака
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Projects\nonlinear\Debug\cudadichotomy.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\lib\Win32" cudart.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Projects\nonlinear\Debug\cudadichotomy.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Projects\nonlinear\Debug\cudadichotomy.lib" /MACHINE:X86 Debug\cudadichotomy.cu.obj
          cudadichotomy.vcxproj -> D:\Projects\nonlinear\Debug\cudadichotomy.exe
@@ -31,4 +30,4 @@
 
 Построение успешно завершено.
 
-Затраченное время: 00:00:32.84
+Затраченное время: 00:00:37.26

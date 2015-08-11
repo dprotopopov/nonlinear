@@ -1,4 +1,4 @@
-// https://ru.wikipedia.org/wiki/Дихотомия
+// Алгоритм многомерной оптимизации с использованием метода решёток
 
 #define _CRT_SECURE_NO_WARNINGS
 #define _SCL_SECURE_NO_WARNINGS
@@ -128,7 +128,7 @@ __device__ bool f1(double * x, int n)
 	const double b = 16;
 
 	double y = 0.0;
-	for(int i=0; i<n; i++) y+=(x[i]-_c[i])*(x[i]-_c[i]);
+	for(unsigned i=0; i<n; i++) y+=(x[i]-_c[i])*(x[i]-_c[i]);
 	return y<b;
 }
 __device__ bool f2(double * x, int n)
@@ -137,7 +137,7 @@ __device__ bool f2(double * x, int n)
 	const double b = 16;
 
 	double y = 0.0;
-	for(int i=0; i<n; i++) y+=(x[i]-_c[i])*(x[i]-_c[i]);
+	for(unsigned i=0; i<n; i++) y+=(x[i]-_c[i])*(x[i]-_c[i]);
 	return y<b;
 }
 // ...
@@ -146,10 +146,10 @@ __device__ bool f2(double * x, int n)
 // Искомая функция
 __device__ double w(double * x, int n)
 {
-	const double _c[] = {2, 3};
+	const double _c[] = {7.0/3, 10.0/3};
 
 	double y = 0.0;
-	for(int i=0; i<n; i++) y+=(x[i]-_c[i])*(x[i]-_c[i]);
+	for(unsigned i=0; i<n; i++) y+=(x[i]-_c[i])*(x[i]-_c[i]);
 	return y;
 }
 
@@ -175,7 +175,7 @@ const double _e=1e-15;
 /////////////////////////////////////////////////////////
 // Вычисление вектора индексов координат решётки по номеру узла
 // index - номер узла решётки
-__device__ void vector_of(unsigned * vector, unsigned long index, unsigned * m, int n)
+__device__ void vector_of(unsigned * vector, unsigned long index, unsigned * m, unsigned n)
 {
 	for(unsigned i=0;i<n;i++)
 	{
@@ -192,7 +192,7 @@ __device__ void vector_of(unsigned * vector, unsigned long index, unsigned * m, 
 // a - вектор минимальных координат точек
 // b - вектор максимальных координат точек
 __device__ void point_of(double * point, unsigned * vector,
-						 unsigned * m, double * a, double * b, int n)
+						 unsigned * m, double * a, double * b, unsigned n)
 {
 	for(unsigned i=0;i<n;i++) point[i]=(a[i]*(m[i]-vector[i])+b[i]*vector[i])/m[i];
 }
@@ -201,14 +201,14 @@ __device__ void point_of(double * point, unsigned * vector,
 // Проверка принадлежности точки области, заданной ограничениями
 // x - координаты точки
 // f - набор проверочных функций
-__device__ bool check(double * x, int n)
+__device__ bool check(double * x, unsigned n)
 {
 	return f1(x,n)&&f2(x,n);
 }
 
-__device__ void copy(double * x, double * y, int n)
+__device__ void copy(double * x, double * y, unsigned n)
 {
-	for(int i=0; i<n; i++) x[i] = y[i];
+	for(unsigned i=0; i<n; i++) x[i] = y[i];
 }
 
 __global__ void kernel(
@@ -221,7 +221,7 @@ __global__ void kernel(
 	double * a,
 	double * b,
 	unsigned long total,
-	int n)
+	unsigned n)
 {
 	// Получаем идентификатор нити
 	int id = blockDim.x*blockIdx.x + threadIdx.x;
@@ -241,13 +241,13 @@ __global__ void kernel(
 			if(!check(t, n)) continue;
 			if(!*e) {
 				*y = w(t, n);
-				copy(x, t, n);
+				::copy(x, t, n);
 				*e = true;
 				continue;
 			}
 			double y1 =  w(t, n);
 			if(y1 < *y) {
-				copy(x, t, n);
+				::copy(x, t, n);
 				*y = y1;
 			}
 	}
@@ -278,15 +278,16 @@ int main(int argc, char* argv[])
 	{
 		if(strcmp(argv[i],"-help")==0) 
 		{
+			std::cout << "Usage :\t" << argv[0] << " [...] [g <gridSize>] [b <blockSize>] [-input <inputfile>] [-output <outputfile>]" << std::endl;
+			std::cout << "Алгоритм многомерной оптимизации с использованием метода решёток" << std::endl;
 			std::cout << "Алгоритм деления значений аргумента функции" << std::endl;
 			//			std::cout << "\t-n <размерность пространства>" << std::endl;
 			std::cout << "\t-m <число сегментов по каждому из измерений>" << std::endl;
 			std::cout << "\t-a <минимальные координаты по каждому из измерений>" << std::endl;
 			std::cout << "\t-b <максимальные координаты по каждому из измерений>" << std::endl;
-			std::cout << "\t-e <очность вычислений>" << std::endl;
+			std::cout << "\t-e <точность вычислений>" << std::endl;
 			std::cout << "\t-ask/noask" << std::endl;
 			std::cout << "\t-trace/notrace" << std::endl;
-			std::cout << "\tСм. https://ru.wikipedia.org/wiki/Дихотомия" << std::endl;
 		}
 		else if(strcmp(argv[i],"-ask")==0) ask_mode = ASK;
 		else if(strcmp(argv[i],"-noask")==0) ask_mode = NOASK;
@@ -391,6 +392,7 @@ int main(int argc, char* argv[])
 	thrust::device_vector<double> xArray(blocks*threads*n);
 	thrust::device_vector<double> yArray(blocks*threads);
 	thrust::device_vector<bool> eArray(blocks*threads);
+	thrust::host_vector<double> hyArray(blocks*threads);
 
 	unsigned * vPtr = thrust::raw_pointer_cast(&vArray[0]);
 	double * tPtr = thrust::raw_pointer_cast(&tArray[0]);
@@ -401,6 +403,10 @@ int main(int argc, char* argv[])
 	double * aPtr = thrust::raw_pointer_cast(&a[0]);
 	double * bPtr = thrust::raw_pointer_cast(&b[0]);
 
+	thrust::host_vector<double> hx(n);
+
+	// Алгоритм
+
 	thrust::device_vector<double> x(n);
 	double y;
 
@@ -410,28 +416,30 @@ int main(int argc, char* argv[])
 
 		// Находим первую точку в области, заданной ограничениями
 		kernel<<< blocks, threads >>>(vPtr, tPtr, xPtr, yPtr, ePtr, mPtr, aPtr, bPtr, total, n);
+		thrust::copy(yArray.begin(), yArray.end(), hyArray.begin());
+
 		auto it = thrust::find(eArray.begin(), eArray.end(), true);
 		if(it>=eArray.end())
 		{
-			for(int i=0; i<n; i++) m[i]*=2;
+			for(unsigned i=0; i<n; i++) m[i]<<=1u;
 			continue;
 		}
 
-		int index = thrust::distance(eArray.begin(), it);
-		y=yArray[index];
+		int index = thrust::distance(eArray.begin(), it++);
+		y=hyArray[index];
 		thrust::copy(&xArray[index*n], &xArray[index*n+n], x.begin());
 
 		while((it = thrust::find(it, eArray.end(), true)) < eArray.end())
 		{
 			int index = thrust::distance(eArray.begin(), it++);
-			double y1=yArray[index];
+			double y1=hyArray[index];
 			if(y<y1) continue;
-			y=yArray[index];
+			y=y1;
 			thrust::copy(&xArray[index*n], &xArray[index*n+n], x.begin());
 		}
 
 		if(trace_mode==TRACE) {
-			thrust::host_vector<double> hx(x);
+			thrust::copy(x.begin(), x.end(), hx.begin());
 			for(unsigned i=0;i<hx.size();i++) std::cout << hx[i] << " "; 
 		}
 		if(trace_mode==TRACE) std::cout << "-> " << y << std::endl; 
@@ -447,10 +455,9 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	thrust::host_vector<double> hx(x);
+	thrust::copy(x.begin(), x.end(), hx.begin());
 	std::cout << "Точка минимума           : "; for(unsigned i=0;i<hx.size();i++) std::cout << hx[i] << " "; std::cout << std::endl; 
 	std::cout << "Минимальное значение     : " << y << std::endl; 
-	std::cout << "См. https://ru.wikipedia.org/wiki/Дихотомия" << std::endl;
 
 	getchar();
 	getchar();

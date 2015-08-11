@@ -6,4 +6,7 @@
   <Module PersistentId="11DD8066-72B1-43BE-84BE-1674DA572346" ModuleId="cpucyclic" />
   <Module PersistentId="67CAE684-E25C-44E5-B172-21A10D6A44D0" ModuleId="cudacyclic" />
   <Module PersistentId="4C1C2823-96AD-4811-B18D-6D43A29D350B" ModuleId="cudacyclic2" />
+  <Module PersistentId="C8761A1D-74FC-442E-AD02-C95622F4552B" ModuleId="cpuHookAndJeeves" />
+  <Module PersistentId="38F91A68-F3E5-49CB-99B7-7F8EFDB1A399" ModuleId="cudaHookAndJeeves" />
+  <Module PersistentId="258BC06A-7184-4234-A79B-B4C6A86611FB" ModuleId="cudaHookAndJeeves2" />
 </Modules>

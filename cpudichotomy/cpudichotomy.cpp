@@ -1,4 +1,4 @@
-// https://ru.wikipedia.org/wiki/Дихотомия
+// Алгоритм многомерной оптимизации с использованием метода решёток
 
 #define _CRT_SECURE_NO_WARNINGS
 #define _SCL_SECURE_NO_WARNINGS
@@ -25,8 +25,7 @@ bool check(std::vector<double> x, std::vector<check_func *> f);
 double delta(std::vector<double> x,std::vector<double> y);
 unsigned long total_of(std::vector<unsigned> m);
 std::vector<unsigned> vector_of(unsigned long index, std::vector<unsigned> m);
-std::vector<double> point_of(std::vector<unsigned> vector,
-							 std::vector<unsigned> m, std::vector<double> a, std::vector<double> b);
+std::vector<double> point_of(std::vector<unsigned> vector, std::vector<unsigned> m, std::vector<double> a, std::vector<double> b);
 
 template <typename T>
 T inc_functor(T value)  
@@ -116,7 +115,7 @@ bool f2(std::vector<double> x)
 // Искомая функция
 double w(std::vector<double> x)
 {
-	static const double _c[] = {2, 3};
+	const double _c[] = {7.0/3, 10.0/3};
 
 	std::vector<double> c(_c, _c + sizeof(_c) / sizeof(_c[0]) );
 	std::vector<double> sub(std::max(x.size(),c.size()));
@@ -218,10 +217,10 @@ int main(int argc, char* argv[])
 	// http://stackoverflow.com/questions/2236197/what-is-the-easiest-way-to-initialize-a-stdvector-with-hardcoded-elements
 	unsigned n=_n;
 	double e=_e;
-	std::vector<unsigned> hm(_m, _m + sizeof(_m) / sizeof(_m[0]) );
-	std::vector<double> ha(_a, _a + sizeof(_a) / sizeof(_a[0]) );
-	std::vector<double> hb(_b, _b + sizeof(_b) / sizeof(_b[0]) );
-	std::vector<check_func *> hf(_f, _f + sizeof(_f) / sizeof(_f[0]) );
+	std::vector<unsigned> m(_m, _m + sizeof(_m) / sizeof(_m[0]) );
+	std::vector<double> a(_a, _a + sizeof(_a) / sizeof(_a[0]) );
+	std::vector<double> b(_b, _b + sizeof(_b) / sizeof(_b[0]) );
+	std::vector<check_func *> f(_f, _f + sizeof(_f) / sizeof(_f[0]) );
 
 	char * input_file_name = NULL;
 	char * output_file_name = NULL;
@@ -235,6 +234,8 @@ int main(int argc, char* argv[])
 	{
 		if(strcmp(argv[i],"-help")==0) 
 		{
+			std::cout << "Usage :\t" << argv[0] << " [...] [-input <inputfile>] [-output <outputfile>]" << std::endl;
+			std::cout << "Алгоритм многомерной оптимизации с использованием метода решёток" << std::endl;
 			std::cout << "Алгоритм деления значений аргумента функции" << std::endl;
 			//			std::cout << "\t-n <размерность пространства>" << std::endl;
 			std::cout << "\t-m <число сегментов по каждому из измерений>" << std::endl;
@@ -243,7 +244,6 @@ int main(int argc, char* argv[])
 			std::cout << "\t-e <точность вычислений>" << std::endl;
 			std::cout << "\t-ask/noask" << std::endl;
 			std::cout << "\t-trace/notrace" << std::endl;
-			std::cout << "\tСм. https://ru.wikipedia.org/wiki/Дихотомия" << std::endl;
 		}
 		else if(strcmp(argv[i],"-ask")==0) ask_mode = ASK;
 		else if(strcmp(argv[i],"-noask")==0) ask_mode = NOASK;
@@ -253,16 +253,16 @@ int main(int argc, char* argv[])
 		else if(strcmp(argv[i],"-e")==0) e = atof(argv[++i]);
 		else if(strcmp(argv[i],"-m")==0) {
 			std::istringstream ss(argv[++i]);
-			hm.clear();
-			for(unsigned i=0;i<n;i++) hm.push_back(atoi(argv[++i]));
+			m.clear();
+			for(unsigned i=0;i<n;i++) m.push_back(atoi(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-a")==0) {
-			ha.clear();
-			for(unsigned i=0;i<n;i++) ha.push_back(atof(argv[++i]));
+			a.clear();
+			for(unsigned i=0;i<n;i++) a.push_back(atof(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-b")==0) {
-			hb.clear();
-			for(unsigned i=0;i<n;i++) hb.push_back(atof(argv[++i]));
+			b.clear();
+			for(unsigned i=0;i<n;i++) b.push_back(atof(argv[++i]));
 		}
 		else if(strcmp(argv[i],"-input")==0) input_file_name = argv[++i];
 		else if(strcmp(argv[i],"-output")==0) output_file_name = argv[++i];
@@ -276,45 +276,41 @@ int main(int argc, char* argv[])
 		//  std::cout << "Введите размерность пространства:"<< std::endl; std::cin >> n;
 
 		std::cout << "Введите число сегментов по каждому из измерений m[" << n << "]:"<< std::endl;
-		hm.clear();
+		m.clear();
 		for(unsigned i=0;i<n;i++)
 		{
 			int x; std::cin >> x;
-			hm.push_back(x);
+			m.push_back(x);
 		}
 
 		std::cout << "Введите минимальные координаты по каждому из измерений a[" << n << "]:"<< std::endl;
-		ha.clear();
+		a.clear();
 		for(unsigned i=0;i<n;i++)
 		{
 			double x; std::cin >> x;
-			ha.push_back(x);
+			a.push_back(x);
 		}
 
 		std::cout << "Введите максимальные координаты по каждому из измерений b[" << n << "]:"<< std::endl;
-		hb.clear();
+		b.clear();
 		for(unsigned i=0;i<n;i++)
 		{
 			double x; std::cin >> x;
-			hb.push_back(x);
+			b.push_back(x);
 		}
 
 		std::cout << "Введите точность вычислений:"<< std::endl; std::cin >> e;
 	}
 
 	std::cout << "Размерность пространства : " << n << std::endl;
-	std::cout << "Число сегментов          : "; for(unsigned i=0;i<hm.size();i++) std::cout << hm[i] << " "; std::cout << std::endl; 
-	std::cout << "Минимальные координаты   : "; for(unsigned i=0;i<ha.size();i++) std::cout << ha[i] << " "; std::cout << std::endl; 
-	std::cout << "Максимальные координаты  : "; for(unsigned i=0;i<hb.size();i++) std::cout << hb[i] << " "; std::cout << std::endl; 
+	std::cout << "Число сегментов          : "; for(unsigned i=0;i<m.size();i++) std::cout << m[i] << " "; std::cout << std::endl; 
+	std::cout << "Минимальные координаты   : "; for(unsigned i=0;i<a.size();i++) std::cout << a[i] << " "; std::cout << std::endl; 
+	std::cout << "Максимальные координаты  : "; for(unsigned i=0;i<b.size();i++) std::cout << b[i] << " "; std::cout << std::endl; 
 	std::cout << "Точность вычислений      : " << e << std::endl;
 
-	for(unsigned i=0;i<hm.size();i++) assert(hm[i]>2);
+	for(unsigned i=0;i<m.size();i++) assert(m[i]>2);
 
 // Алгоритм
-	std::vector<unsigned> m(hm);
-	std::vector<double> a(ha);
-	std::vector<double> b(hb);
-	std::vector<check_func *> f(hf);
 
 	std::vector<double> x;
 	double y;
@@ -332,7 +328,7 @@ int main(int argc, char* argv[])
 		}
 		if(index>=total)
 		{
-			for(int i=0; i<n; i++) m[i]*=2;
+			for(unsigned i=0; i<n; i++) m[i]<<=1u;
 			continue;
 		}
 		y=(*w)(x);
@@ -343,7 +339,7 @@ int main(int argc, char* argv[])
 			if(!check(x1,f)) continue;
 			double y1 = (*w)(x1);
 			if(y1>y) continue;
-			x=x1;
+			std::copy(x1.begin(), x1.end(), x.begin());
 			y=y1;
 		}
 
@@ -363,7 +359,6 @@ int main(int argc, char* argv[])
 
 	std::cout << "Точка минимума           : "; for(unsigned i=0;i<x.size();i++) std::cout << x[i] << " "; std::cout << std::endl; 
 	std::cout << "Минимальное значение     : " << y << std::endl; 
-	std::cout << "См. https://ru.wikipedia.org/wiki/Дихотомия" << std::endl;
 
 	getchar();
 	getchar();

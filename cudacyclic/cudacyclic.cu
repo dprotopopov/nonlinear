@@ -1,5 +1,9 @@
 // Алгоритм циклического покоординатного спуска
 // Используя алгоритм одномерной оптимизации по направлению
+// Базара М., Шетти К.
+// Нелинейное программирование. Теория и алгоритмы:
+// Пер. с англ. - М.: Мир, 1982.
+// 583 с.
 
 #define _CRT_SECURE_NO_WARNINGS
 #define _SCL_SECURE_NO_WARNINGS
@@ -40,8 +44,7 @@ typedef double (value_func)(thrust::device_vector<double> x); // Профиль искомой
 double delta(thrust::device_vector<double> x,thrust::device_vector<double> y);
 unsigned long total_of(thrust::device_vector<unsigned> m);
 thrust::device_vector<unsigned> vector_of(unsigned long index, thrust::device_vector<unsigned> m);
-thrust::device_vector<double> point_of(thrust::device_vector<unsigned> vector,
-	thrust::device_vector<unsigned> m, thrust::device_vector<double> a, thrust::device_vector<double> b);
+thrust::device_vector<double> point_of(thrust::device_vector<unsigned> vector, thrust::device_vector<unsigned> m, thrust::device_vector<double> a, thrust::device_vector<double> b);
 
 template <typename T>
 struct inc_functor { 
@@ -144,7 +147,7 @@ bool f2(thrust::device_vector<double> x)
 // Искомая функция
 double w(thrust::device_vector<double> x)
 {
-	const double _c[] = {2, 3};
+	const double _c[] = {7.0/3, 10.0/3};
 
 	thrust::device_vector<double> c(_c, _c + sizeof(_c) / sizeof(_c[0]) );
 	thrust::device_vector<double> sub(thrust::max(x.size(),c.size()));
@@ -262,6 +265,7 @@ int main(int argc, char* argv[])
 	{
 		if(strcmp(argv[i],"-help")==0) 
 		{
+			std::cout << "Usage :\t" << argv[0] << " [...] [-input <inputfile>] [-output <outputfile>]" << std::endl;
 			std::cout << "Алгоритм циклического покоординатного спуска" << std::endl;
 			std::cout << "Используя алгоритм одномерной оптимизации по направлению" << std::endl;
 			std::cout << "(Алгоритм деления значений аргумента функции)" << std::endl;
@@ -269,7 +273,7 @@ int main(int argc, char* argv[])
 			std::cout << "\t-m <число сегментов по каждому из измерений>" << std::endl;
 			std::cout << "\t-a <минимальные координаты по каждому из измерений>" << std::endl;
 			std::cout << "\t-b <максимальные координаты по каждому из измерений>" << std::endl;
-			std::cout << "\t-e <очность вычислений>" << std::endl;
+			std::cout << "\t-e <точность вычислений>" << std::endl;
 			std::cout << "\t-ask/noask" << std::endl;
 			std::cout << "\t-trace/notrace" << std::endl;
 		}
@@ -352,6 +356,9 @@ int main(int argc, char* argv[])
 	thrust::device_vector<double> b(hb);
 	thrust::device_vector<check_func *> f(hf);
 
+	thrust::host_vector<double> hx(n);
+	thrust::device_vector<double> t(n);
+	thrust::device_vector<double> x1(n);
 
 	// Находим первую точку в области, заданной ограничениями
 	thrust::device_vector<double> x;
@@ -367,7 +374,7 @@ int main(int argc, char* argv[])
 		}
 		if(index>=total)
 		{
-			for(int i=0; i<n; i++) m[i]*=2;
+			for(unsigned i=0; i<n; i++) m[i]<<=1u;
 			continue;
 		}
 		y = (*w)(x);
@@ -379,10 +386,10 @@ int main(int argc, char* argv[])
 		// Находим следующую точку в области, заданной ограничениями
 		// Используя алгоритм одномерной оптимизации по направлению
 		
-		thrust::device_vector<double> x1(x); // Сохранение значения последней точки
+		thrust::copy(x.begin(), x.end(), x1.begin()); // Сохранение значения последней точки
 
 		// Цикл по измерениям
-		for(int k=0; k<n; k++)
+		for(unsigned k=0; k<n; k++)
 		{
 			// Алгоритм одномерной оптимизации по направлению
 			double ak = a[k];
@@ -390,15 +397,15 @@ int main(int argc, char* argv[])
 			unsigned mk = m[k];
 			while(true)
 			{
-				thrust::device_vector<double> xk(x);
-				for(int i=0; i<=mk; i++)
+				thrust::copy(x.begin(), x.end(), t.begin());
+				for(unsigned i=0; i<=mk; i++)
 				{
-					xk[k] = (ak*(mk-i)+bk*i)/mk;
-					if(!check(xk,f)) continue;
-					double yk = (*w)(xk);
+					t[k] = (ak*(mk-i)+bk*i)/mk;
+					if(!check(t,f)) continue;
+					double yk = (*w)(t);
 					if(yk>y) continue;
 					y = yk;
-					x[k] = xk[k];
+					x[k] = t[k];
 				}
 				if(thrust::max(ak-bk,bk-ak)<e) break;
 				double aa = ak;
@@ -410,7 +417,7 @@ int main(int argc, char* argv[])
 		}
 
 		if(trace_mode==TRACE) {
-			thrust::host_vector<double> hx(x);
+			thrust::copy(x.begin(), x.end(), hx.begin());
 			for(unsigned i=0;i<hx.size();i++) std::cout << hx[i] << " "; 
 		}
 		if(trace_mode==TRACE) std::cout << "-> " << y << std::endl; 
@@ -418,7 +425,7 @@ int main(int argc, char* argv[])
 		if(delta(x,x1)<e) break;
 	}
 
-	thrust::host_vector<double> hx(x);
+	thrust::copy(x.begin(), x.end(), hx.begin());
 	std::cout << "Точка минимума           : "; for(unsigned i=0;i<hx.size();i++) std::cout << hx[i] << " "; std::cout << std::endl; 
 	std::cout << "Минимальное значение     : " << y << std::endl; 
 
