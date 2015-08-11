@@ -171,17 +171,19 @@ __device__ bool f2(double * x, size_t n)
 // Искомая функция
 __device__ double w(double * x, size_t n)
 {
+	const double _c0[] = {0, 0};
 	const double _c1[] = {150, 180};
 	const double _c2[] = {240, 200};
 	const double _c3[] = {260, 90};
-	const double _q[] = {1800, 800, 1200};
-	double square[] = { 0, 0, 0 };
+	const double _q[] = {3040, 1800, 800, 1200};
+	double square[] = { 0, 0, 0, 0 };
 
 	double y = 0.0;
-	for(size_t i=0; i<n; i++) square[0]+=(x[i]-_c1[i])*(x[i]-_c1[i]);
-	for(size_t i=0; i<n; i++) square[1]+=(x[i]-_c2[i])*(x[i]-_c2[i]);
-	for(size_t i=0; i<n; i++) square[2]+=(x[i]-_c3[i])*(x[i]-_c3[i]);
-	for(size_t i=0; i<3; i++) y+=_q[i]*sqrt(square[i]);
+	for(size_t i=0; i<n; i++) square[0]+=(x[i]-_c0[i])*(x[i]-_c0[i]);
+	for(size_t i=0; i<n; i++) square[1]+=(x[i]-_c1[i])*(x[i]-_c1[i]);
+	for(size_t i=0; i<n; i++) square[2]+=(x[i]-_c2[i])*(x[i]-_c2[i]);
+	for(size_t i=0; i<n; i++) square[3]+=(x[i]-_c3[i])*(x[i]-_c3[i]);
+	for(size_t i=0; i<4; i++) y+=_q[i]*sqrt(square[i]);
 	return y;
 }
 
@@ -194,17 +196,17 @@ enum t_trace_mode {
 	TRACE = 1
 };
 t_ask_mode ask_mode = NOASK;
-t_trace_mode trace_mode = TRACE;
+t_trace_mode trace_mode = NOTRACE;
 
 /////////////////////////////////////////////////////////
 // Дефолтные значения
 static const unsigned _count = 1;
 static const size_t _n = 2;
-static const size_t _md = 100;
+static const size_t _md = 20;
 static const size_t _m[] = {20, 20};
 static const double _a[] = {0, 0};
 static const double _b[] = {1000, 1000};
-static const double _e=1e-10;
+static const double _e=1e-8;
 
 /////////////////////////////////////////////////////////
 // Вычисление вектора индексов координат решётки по номеру узла

@@ -116,11 +116,13 @@ bool f2(std::vector<double> &x)
 // Искомая функция
 double w(std::vector<double> &x)
 {
+	const double _c0[] = {0, 0};
 	const double _c1[] = {150, 180};
 	const double _c2[] = {240, 200};
 	const double _c3[] = {260, 90};
-	const double _q[] = {1800, 800, 1200};
+	const double _q[] = {3040, 1800, 800, 1200};
 
+	std::vector<double> c0(_c0, _c0 + sizeof(_c0) / sizeof(_c0[0]) );
 	std::vector<double> c1(_c1, _c1 + sizeof(_c1) / sizeof(_c1[0]) );
 	std::vector<double> c2(_c2, _c2 + sizeof(_c2) / sizeof(_c2[0]) );
 	std::vector<double> c3(_c3, _c3 + sizeof(_c3) / sizeof(_c3[0]) );
@@ -129,9 +131,13 @@ double w(std::vector<double> &x)
 	std::vector<double> sub(x.size());
 	std::vector<double> square(x.size());
 	std::vector<double> mul(q.size());
+	assert(x.size()==c0.size());
 	assert(x.size()==c1.size());
 	assert(x.size()==c2.size());
 	assert(x.size()==c3.size());
+	std::transform(x.begin(), x.end(), c0.begin(), sub.begin(), sub_functor<double>);
+	std::transform(sub.begin(), sub.end(), square.begin(), square_functor<double>);
+	d.push_back(std::sqrt(std::accumulate(square.begin(), square.end(), 0.0, add_functor<double>)));
 	std::transform(x.begin(), x.end(), c1.begin(), sub.begin(), sub_functor<double>);
 	std::transform(sub.begin(), sub.end(), square.begin(), square_functor<double>);
 	d.push_back(std::sqrt(std::accumulate(square.begin(), square.end(), 0.0, add_functor<double>)));
@@ -154,7 +160,7 @@ enum t_trace_mode {
 	TRACE = 1
 };
 t_ask_mode ask_mode = NOASK;
-t_trace_mode trace_mode = TRACE;
+t_trace_mode trace_mode = NOTRACE;
 
 /////////////////////////////////////////////////////////
 // Дефолтные значения
@@ -164,7 +170,7 @@ static const size_t _m[] = {3, 3};
 static const double _a[] = {0, 0};
 static const double _b[] = {1000, 1000};
 static check_func *_f[]  = {&f1,&f2};
-static const double _e=1e-10;
+static const double _e=1e-8;
 
 
 /////////////////////////////////////////////////////////
