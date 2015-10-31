@@ -432,12 +432,31 @@ int main(int argc, char* argv[])
 				continue;
 			}
 			y = target(x, w);
+
 			if (trace_mode == TRACE && count == 1)
 			{
 				thrust::copy(x.begin(), x.end(), hx.begin());
 				for (size_t i = 0; i < hx.size(); i++) std::cout << hx[i] << " ";
 			}
 			if (trace_mode == TRACE && count == 1) std::cout << "-> " << y << std::endl;
+
+			while (index < total)
+			{
+				vector_of(v, index++, m);
+				point_of(x1, v, m, a, b);
+				if (!check(x1, f, a, b)) continue;
+				double y1 = target(x1, w);
+				if (y1 > y) continue;
+				thrust::copy(x1.begin(), x1.end(), x.begin());
+				y = y1;
+
+				if (trace_mode == TRACE && count == 1)
+				{
+					thrust::host_vector<double> hx(x);
+					for (size_t i = 0; i < hx.size(); i++) std::cout << hx[i] << " ";
+				}
+				if (trace_mode == TRACE && count == 1) std::cout << "-> " << y << std::endl;
+			}
 			break;
 		}
 

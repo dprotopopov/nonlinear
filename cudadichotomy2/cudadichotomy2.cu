@@ -147,7 +147,7 @@ t_trace_mode trace_mode = NOTRACE;
 // Дефолтные значения
 static const unsigned _count = 1;
 static const size_t _n = 2;
-static const size_t _m[] = {3, 3};
+static const size_t _m[] = {20, 20};
 static const double _a[] = {0, 0};
 static const double _b[] = {1000, 1000};
 static const double _f1[] = {0, 0, 500};

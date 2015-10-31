@@ -460,6 +460,24 @@ int main(int argc, char* argv[])
 				for (size_t i = 0; i < hx.size(); i++) std::cout << hx[i] << " ";
 			}
 			if (trace_mode == TRACE && count == 1) std::cout << "-> " << y << std::endl;
+
+			while (index < total)
+			{
+				vector_of(v, index++, m);
+				point_of(x1, v, m, a, b);
+				if (!check(x1, f, a, b)) continue;
+				double y1 = target(x1, w);
+				if (y1 > y) continue;
+				thrust::copy(x1.begin(), x1.end(), x.begin());
+				y = y1;
+
+				if (trace_mode == TRACE && count == 1)
+				{
+					thrust::host_vector<double> hx(x);
+					for (size_t i = 0; i < hx.size(); i++) std::cout << hx[i] << " ";
+				}
+				if (trace_mode == TRACE && count == 1) std::cout << "-> " << y << std::endl;
+			}
 			break;
 		}
 
@@ -519,9 +537,9 @@ int main(int argc, char* argv[])
 			{
 				double p = 0;
 
-				for (size_t index = 0; index <= md + md; index++)
+				for (size_t i = 0; i <= md + md; i++)
 				{
-					double pt = (l * (md + md - index) + h * index) / (md + md);
+					double pt = (l * (md + md - i) + h * i) / (md + md);
 					for (size_t i = 0; i < n; i++) ht[i] = x2[i] * (1.0 - pt) + x1[i] * pt;
 					thrust::copy(ht.begin(), ht.end(), t.begin());
 					if (!check(t, f, a, b)) continue;

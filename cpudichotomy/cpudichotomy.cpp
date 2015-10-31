@@ -9,8 +9,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
-#include <numeric> // std::accumulate
-
+#include <numeric>
 #include <locale>
 #include <assert.h>
 #include <fstream>
@@ -74,6 +73,11 @@ T max_functor(T value1, T value2)
 bool and_functor(const bool value1, const bool value2)
 {
 	return value1 && value2;
+}
+
+bool or_functor(const bool value1, const bool value2)
+{
+	return value1 || value2;
 }
 
 enum t_ask_mode
@@ -176,17 +180,19 @@ unsigned long total_of(std::vector<size_t>& m)
 bool check(std::vector<double>& x, std::vector<double>& f, std::vector<double>& a, std::vector<double>& b)
 {
 	size_t n = x.size();
+	std::vector<bool> s(f.size() / (n + 1));
 	for (size_t i = 0; i < n; i++) if (x[i] < a[i] && x[i] < b[i]) return false;
 	for (size_t i = 0; i < n; i++) if (x[i] > a[i] && x[i] > b[i]) return false;
-	for (size_t i = 0; i < f.size() / (n+1); i++)
+#pragma omp parallel for
+	for (size_t i = 0; i < s.size(); i++)
 	{
 		std::vector<double> sub(x.size());
 		std::vector<double> square(x.size());
 		std::transform(x.begin(), x.end(), f.begin() + i * (n + 1), sub.begin(), diff_functor<double>);
 		std::transform(sub.begin(), sub.end(), square.begin(), square_functor<double>);
-		if (std::sqrt(std::accumulate(square.begin(), square.end(), 0.0, add_functor<double>)) > f[i * (n + 1) + n]) return false;
+		s[i] = (std::sqrt(std::accumulate(square.begin(), square.end(), 0.0, add_functor<double>)) < f[i * (n + 1) + n]);
 	}
-	return true;
+	return std::accumulate(s.begin(), s.end(), true, and_functor);
 }
 
 /////////////////////////////////////////////////////////
@@ -194,16 +200,17 @@ bool check(std::vector<double>& x, std::vector<double>& f, std::vector<double>& 
 double target(std::vector<double>& x, std::vector<double>& w)
 {
 	size_t n = x.size();
-	double s = 0;
-	for (size_t i = 0; i < w.size() / (n+1); i++)
+	std::vector<double> s(w.size() / (n + 1));
+#pragma omp parallel for
+	for (size_t i = 0; i < s.size(); i++)
 	{
 		std::vector<double> sub(x.size());
 		std::vector<double> square(x.size());
 		std::transform(x.begin(), x.end(), w.begin() + i * (n + 1), sub.begin(), diff_functor<double>);
 		std::transform(sub.begin(), sub.end(), square.begin(), square_functor<double>);
-		s += std::sqrt(std::accumulate(square.begin(), square.end(), 0.0, add_functor<double>)) * w[i * (n + 1) + n];
+		s[i] = std::sqrt(std::accumulate(square.begin(), square.end(), 0.0, add_functor<double>)) * w[i * (n + 1) + n];
 	}
-	return s;
+	return std::accumulate(s.begin(), s.end(), 0.0, add_functor<double>);
 }
 
 int main(int argc, char* argv[])
@@ -352,7 +359,6 @@ int main(int argc, char* argv[])
 
 	std::vector<unsigned> v(n);
 	std::vector<double> x(n);
-	std::vector<double> x1(n);
 	std::vector<double> a1(n);
 	std::vector<double> b1(n);
 	double y;
@@ -367,33 +373,66 @@ int main(int argc, char* argv[])
 		while (true)
 		{
 			unsigned long total = total_of(m);
-
+			int root = sqrt(total);
+			unsigned long index = total;
 			// Ќаходим первую точку в области, заданной ограничени€ми
-			unsigned long index = 0;
-			while (index < total)
+			for (unsigned long index1 = 0; index1 < total; index1 += root)
 			{
-				vector_of(v, index++, m);
-				point_of(x, v, m, a1, b1);
-				if (check(x, f, a1, b1)) break;
+				std::vector<bool> bools(root, false);
+#pragma omp parallel for
+				for (int i = 0; i < root; i++)
+					if (index1 + i < total)
+					{
+						std::vector<unsigned> v(n);
+						std::vector<double> t(n);
+						vector_of(v, index1 + i, m);
+						point_of(t, v, m, a1, b1);
+						bools[i] = check(t, f, a1, b1);
+					}
+				auto it = std::find(bools.begin(), bools.end(), true);
+				if (it >= bools.end()) continue;
+				size_t i = std::distance(bools.begin(), it++);
+				index = index1 + i;
+				break;
 			}
+
 			if (index >= total)
 			{
 				for (size_t i = 0; i < n; i++) m[i] <<= 1u;
 				continue;
 			}
+
+			vector_of(v, index, m);
+			point_of(x, v, m, a1, b1);
 			y = target(x, w);
 
 			// Ќаходим следующую точку в области, заданной ограничени€ми
-			while (index < total)
+			for (unsigned long index1 = index + 1; index1 < total; index1 += root)
 			{
-				vector_of(v, index++, m);
-				point_of(x1, v, m, a1, b1);
-				if (!check(x1, f, a1, b1)) continue;
-				double y1 = target(x1, w);
-				if (y1 > y) continue;
-				std::copy(x1.begin(), x1.end(), x.begin());
-				y = y1;
+				std::vector<bool> bools(root, false);
+				std::vector<double> doubles(root, DBL_MAX);
+#pragma omp parallel for
+				for (int i = 0; i < root; i++)
+					if (index1 + i < total)
+					{
+						std::vector<unsigned> v(n);
+						std::vector<double> t(n);
+						vector_of(v, index1 + i, m);
+						point_of(t, v, m, a1, b1);
+						if (bools[i] = check(t, f, a1, b1)) doubles[i] = target(t, w);
+					}
+				for (auto it = std::find(bools.begin(), bools.end(), true);
+				     it < bools.end();
+				     it = std::find(it, bools.end(), true))
+				{
+					size_t i = std::distance(bools.begin(), it++);
+					if (doubles[i] > y) continue;
+					y = doubles[i];
+					index = index1 + i;
+				}
 			}
+			vector_of(v, index, m);
+			point_of(x, v, m, a1, b1);
 
 			if (trace_mode == TRACE && count == 1) for (size_t i = 0; i < x.size(); i++) std::cout << x[i] << " ";
 			if (trace_mode == TRACE && count == 1) std::cout << "-> " << y << std::endl;
@@ -402,6 +441,7 @@ int main(int argc, char* argv[])
 			double cc = std::max(module(a1), module(b1));
 			if (dd <= cc * e) break;
 
+#pragma omp parallel for
 			for (size_t k = 0; k < n; k++)
 			{
 				double ak = a1[k];
