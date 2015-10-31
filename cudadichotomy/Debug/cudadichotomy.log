@@ -1,13 +1,13 @@
-﻿Сборка начата 11.08.2015 17:11:30.
+﻿Сборка начата 31.10.2015 21:17:39.
      1>Проект "D:\Projects\nonlinear\cudadichotomy\cudadichotomy.vcxproj" в узле 2 (целевые объекты Clean).
      1>CudaClean:
-         cmd.exe /C "R:\Temp\tmp769d66b0c2af4c4c895582aca90814eb.cmd"
-         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\nvcc.exe" -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile   -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\cudadichotomy.cu.obj "D:\Projects\nonlinear\cudadichotomy\cudadichotomy.cu" -clean
+         cmd.exe /C "R:\Temp\tmp1ad4c3ed94c442b3b8e3f698487bd66e.cmd"
+         "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\nvcc.exe" -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile   -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\cudadichotomy.cu.obj "D:\Projects\nonlinear\cudadichotomy\cudadichotomy.cu" -clean
          
-         D:\Projects\nonlinear\cudadichotomy>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\nvcc.exe" -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile   -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\cudadichotomy.cu.obj "D:\Projects\nonlinear\cudadichotomy\cudadichotomy.cu" -clean 
+         D:\Projects\nonlinear\cudadichotomy>"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\bin\nvcc.exe" -ccbin "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin"  -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include" -I"C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v6.5\include"  -G   --keep-dir Debug -maxrregcount=0  --machine 32 --compile   -g   -DWIN32 -D_DEBUG -D_CONSOLE -D_MBCS -Xcompiler "/EHsc /W3 /nologo /Od /Zi /RTC1 /MDd  " -o Debug\cudadichotomy.cu.obj "D:\Projects\nonlinear\cudadichotomy\cudadichotomy.cu" -clean 
          cudadichotomy.cu
-     1>Построение проекта "D:\Projects\nonlinear\cudadichotomy\cudadichotomy.vcxproj" завершено (целевые объекты Clean).
+     1>Сборка проекта "D:\Projects\nonlinear\cudadichotomy\cudadichotomy.vcxproj" завершена (целевые объекты Clean).
 
-Построение успешно завершено.
+Сборка успешно завершена.
 
-Затраченное время: 00:00:00.69
+Затраченное время: 00:00:00.73
