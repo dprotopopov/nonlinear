@@ -18,8 +18,66 @@
 #include <locale>
 #include <assert.h>
 #include <fstream>
+#include <stack>
+#include <functional>
+#include <map>
 
 using namespace std;
+
+// http://stackoverflow.com/questions/1494399/how-do-i-search-find-and-replace-in-a-standard-string
+void replace_all(std::string& str, const std::string& oldStr, const std::string& newStr){
+	size_t pos = 0;
+	while ((pos = str.find(oldStr, pos)) != std::string::npos){
+		str.replace(pos, oldStr.length(), newStr);
+		pos += newStr.length();
+	}
+}
+
+
+// https://habrahabr.ru/post/216449/
+double calculate(const char * argv, double *x, int n)
+{
+
+	string expression(argv);
+	for (int i = n; i-- > 0;)
+	{
+		// заменяем идентификаторы x0,...,xN-1 значениями
+		std::ostringstream strs1;
+		strs1 << "x" << i;
+		string xi = strs1.str();
+		std::ostringstream strs2;
+		strs2 << x[i];
+		string vi = strs2.str();
+		replace_all(expression, xi, vi);
+	}
+
+	stack<double> s;  stack< pair<int, char> > ops;
+
+	auto p = [&s, &ops](function<double(double, double)>& f)
+	{double r = s.top(); s.pop(); r = f(s.top(), r); s.pop(); s.push(r); ops.pop(); };
+
+	map< char, pair< int, function<double(double, double)> > > m =
+	{ { '+', { 1, [](double a, double b){return a + b; } } }, { '-', { 1, [](double a, double b){return a - b; } } },
+	{ '*', { 2, [](double a, double b){return a*b; } } }, { '/', { 2, [](double a, double b){return a / b; } } } };
+
+	const int order = 2; int level = 0;
+	for (char* sp = (char*)expression.c_str();; ++sp) {
+		while (*sp == '(') { level += order; ++sp; }
+
+		s.push(strtod(sp, &sp));
+
+		while (*sp == ')') { level -= order; ++sp; }
+
+		if (!*sp) { while (!ops.empty()) p(m[ops.top().second].second); break; }
+
+		const int op = m[*sp].first + level;
+		while (!ops.empty() && ops.top().first >= op) p(m[ops.top().second].second);
+
+		ops.push(make_pair(op, *sp));
+	}
+
+	return s.top();
+}
 
 double module(std::vector<double>& x);
 double delta(std::vector<double>& x, std::vector<double>& y);
@@ -110,11 +168,11 @@ static const double _b[] = {1000, 1000};
 static const double _f1[] = {0, 0, 500};
 static const double _f2[] = {100, 100, 500};
 static const double* _f[] = {_f1, _f2};
-static const double _w1[] = {0, 0, 3040};
-static const double _w2[] = {150, 180 ,1800};
-static const double _w3[] = {240, 200, 800};
-static const double _w4[] = {260, 90, 1200};
-static const double* _w[] = {_w1, _w2, _w3, _w4};
+//static const double _w1[] = {0, 0, 3040};
+//static const double _w2[] = {150, 180 ,1800};
+//static const double _w3[] = {240, 200, 800};
+//static const double _w4[] = {260, 90, 1200};
+//static const double* _w[] = {_w1, _w2, _w3, _w4};
 static const double _e = 1e-8;
 
 
@@ -229,9 +287,10 @@ int main(int argc, char* argv[])
 	std::vector<double> a(_a, _a + sizeof(_a) / sizeof(_a[0]));
 	std::vector<double> b(_b, _b + sizeof(_b) / sizeof(_b[0]));
 	std::vector<double> f;
-	std::vector<double> w;
+	std::string expression = "3040*((x0*x0)+(x1*x1))+1800*((x0-150)*(x0-150)+(x1-180)*(x1-180))+800*((x0-240)*(x0-240)+(x1-200)*(x1-200))+1200*((x0-260)*(x0-260)+(x1-90)*(x1-90))";
+	//std::vector<double> w;
 	for (size_t i = 0; i < sizeof(_f) / sizeof(_f[0]); i++) for (size_t j = 0; j <= n; j++) f.push_back(_f[i][j]);
-	for (size_t i = 0; i < sizeof(_w) / sizeof(_w[0]); i++) for (size_t j = 0; j <= n; j++) w.push_back(_w[i][j]);
+	//for (size_t i = 0; i < sizeof(_w) / sizeof(_w[0]); i++) for (size_t j = 0; j <= n; j++) w.push_back(_w[i][j]);
 
 	char* input_file_name = NULL;
 	char* output_file_name = NULL;
@@ -241,6 +300,7 @@ int main(int argc, char* argv[])
 	// Функция setlocale() имеет два параметра, первый параметр - тип категории локали, в нашем случае LC_TYPE - набор символов, второй параметр — значение локали. 
 	// Вместо второго аргумента можно писать "Russian", или оставлять пустые двойные кавычки, тогда набор символов будет такой же как и в ОС.
 	setlocale(LC_ALL, "");
+	setlocale(LC_NUMERIC, "C");
 
 	for (int i = 1; i < argc; i++)
 	{
@@ -293,7 +353,7 @@ int main(int argc, char* argv[])
 	if (options_file_name != NULL)
 	{
 		f.clear();
-		w.clear();
+		//w.clear();
 		std::ifstream options(options_file_name);
 		if (!options.is_open()) throw "Error opening file";
 		std::string line;
@@ -317,13 +377,20 @@ int main(int argc, char* argv[])
 			if (id[0] == 'A') a = x;
 			if (id[0] == 'B') b = x;
 			if (id[0] == 'F') for (size_t i = 0; i < x.size(); i++) f.push_back(x[i]);
-			if (id[0] == 'W') for (size_t i = 0; i < x.size(); i++) w.push_back(x[i]);
+			//if (id[0] == 'W') for (size_t i = 0; i < x.size(); i++) w.push_back(x[i]);
+			if (id[0] == 'T')
+			{
+				std::size_t pos = line.find("T");
+				expression = line.substr(pos + 2);
+			}
 		}
 	}
 
 	if (ask_mode == ASK)
 	{
-		//  std::cout << "Введите размерность пространства:"<< std::endl; std::cin >> n;
+		std::cout << "Введите размерность пространства:"<< std::endl; std::cin >> n;
+		std::cout << "Введите искомую функцию " << n << " переменных:" << std::endl;
+		std::getline(std::cin, expression);
 
 		std::cout << "Введите число сегментов по каждому из измерений m[" << n << "]:" << std::endl;
 		m.clear();
@@ -406,7 +473,8 @@ int main(int argc, char* argv[])
 
 			vector_of(v, index, m);
 			point_of(x, v, m, a, b);
-			y = target(x, w);
+			//y = target(x, w);
+			y = calculate(expression.c_str(), x.data(), n);
 
 			// Находим следующую точку в области, заданной ограничениями
 			for (unsigned long index1 = index + 1; index1 < total; index1 += root)
@@ -421,7 +489,11 @@ int main(int argc, char* argv[])
 						std::vector<double> t(n);
 						vector_of(v, index1 + i, m);
 						point_of(t, v, m, a, b);
-						if (bools[i] = check(t, f, a, b)) doubles[i] = target(t, w);
+						if (bools[i] = check(t, f, a, b))
+						{
+							//doubles[i] = target(t, w);
+							doubles[i] = calculate(expression.c_str(), t.data(), n);
+						}
 					}
 				for (auto it = std::find(bools.begin(), bools.end(), true);
 					it < bools.end();
@@ -467,7 +539,11 @@ int main(int argc, char* argv[])
 						std::vector<double> t(n);
 						std::copy(x.begin(), x.end(), t.begin());
 						t[k] = (ak * (mk - i) + bk * i) / mk;
-						if (bools[i] = check(t, f, a, b)) doubles[i] = target(t, w);
+						if (bools[i] = check(t, f, a, b))
+						{
+							//doubles[i] = target(t, w);
+							doubles[i] = calculate(expression.c_str(), t.data(), n);
+						}
 					}
 
 					assert(std::accumulate(bools.begin(), bools.end(), false, or_functor));

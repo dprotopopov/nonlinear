@@ -284,7 +284,6 @@ int main(int argc, char* argv[])
 	std::vector<double> b(_b, _b + sizeof(_b) / sizeof(_b[0]));
 	std::vector<double> f;
 	std::string expression = "3040*((x0*x0)+(x1*x1))+1800*((x0-150)*(x0-150)+(x1-180)*(x1-180))+800*((x0-240)*(x0-240)+(x1-200)*(x1-200))+1200*((x0-260)*(x0-260)+(x1-90)*(x1-90))";
-	//std::string expression = "3*x0+2*x1*x0";
 	//std::vector<double> w;
 	for (size_t i = 0; i < sizeof(_f) / sizeof(_f[0]); i++) for (size_t j = 0; j <= n; j++) f.push_back(_f[i][j]);
 	//for (size_t i = 0; i < sizeof(_w) / sizeof(_w[0]); i++) for (size_t j = 0; j <= n; j++) w.push_back(_w[i][j]);
