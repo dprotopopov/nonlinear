@@ -25,9 +25,11 @@
 using namespace std;
 
 // http://stackoverflow.com/questions/1494399/how-do-i-search-find-and-replace-in-a-standard-string
-void replace_all(std::string& str, const std::string& oldStr, const std::string& newStr){
+void replace_all(std::string& str, const std::string& oldStr, const std::string& newStr)
+{
 	size_t pos = 0;
-	while ((pos = str.find(oldStr, pos)) != std::string::npos){
+	while ((pos = str.find(oldStr, pos)) != std::string::npos)
+	{
 		str.replace(pos, oldStr.length(), newStr);
 		pos += newStr.length();
 	}
@@ -35,9 +37,8 @@ void replace_all(std::string& str, const std::string& oldStr, const std::string&
 
 
 // https://habrahabr.ru/post/216449/
-double calculate(const char * argv, double *x, int n)
+double calculate(const char* argv, double* x, int n)
 {
-
 	string expression(argv);
 	for (int i = n; i-- > 0;)
 	{
@@ -51,24 +52,58 @@ double calculate(const char * argv, double *x, int n)
 		replace_all(expression, xi, vi);
 	}
 
-	stack<double> s;  stack< pair<int, char> > ops;
+	stack<double> s;
+	stack<pair<int, char>> ops;
 
 	auto p = [&s, &ops](function<double(double, double)>& f)
-	{double r = s.top(); s.pop(); r = f(s.top(), r); s.pop(); s.push(r); ops.pop(); };
+		{
+			double r = s.top();
+			s.pop();
+			r = f(s.top(), r);
+			s.pop();
+			s.push(r);
+			ops.pop();
+		};
 
-	map< char, pair< int, function<double(double, double)> > > m =
-	{ { '+', { 1, [](double a, double b){return a + b; } } }, { '-', { 1, [](double a, double b){return a - b; } } },
-	{ '*', { 2, [](double a, double b){return a*b; } } }, { '/', { 2, [](double a, double b){return a / b; } } } };
+	map<char, pair<int, function<double(double, double)>>> m =
+		{{'+',{1, [](double a, double b)
+				{
+					return a + b;
+				}}},{'-',{1, [](double a, double b)
+				{
+					return a - b;
+				}}},
+			{'*',{2, [](double a, double b)
+				{
+					return a * b;
+				}}},{'/',{2, [](double a, double b)
+				{
+					return a / b;
+				}}}};
 
-	const int order = 2; int level = 0;
-	for (char* sp = (char*)expression.c_str();; ++sp) {
-		while (*sp == '(') { level += order; ++sp; }
+	const int order = 2;
+	int level = 0;
+	for (char* sp = (char*)expression.c_str();; ++sp)
+	{
+		while (*sp == '(')
+		{
+			level += order;
+			++sp;
+		}
 
 		s.push(strtod(sp, &sp));
 
-		while (*sp == ')') { level -= order; ++sp; }
+		while (*sp == ')')
+		{
+			level -= order;
+			++sp;
+		}
 
-		if (!*sp) { while (!ops.empty()) p(m[ops.top().second].second); break; }
+		if (!*sp)
+		{
+			while (!ops.empty()) p(m[ops.top().second].second);
+			break;
+		}
 
 		const int op = m[*sp].first + level;
 		while (!ops.empty() && ops.top().first >= op) p(m[ops.top().second].second);
@@ -287,7 +322,7 @@ int main(int argc, char* argv[])
 	std::vector<double> a(_a, _a + sizeof(_a) / sizeof(_a[0]));
 	std::vector<double> b(_b, _b + sizeof(_b) / sizeof(_b[0]));
 	std::vector<double> f;
-	std::string expression = "3040*((x0*x0)+(x1*x1))+1800*((x0-150)*(x0-150)+(x1-180)*(x1-180))+800*((x0-240)*(x0-240)+(x1-200)*(x1-200))+1200*((x0-260)*(x0-260)+(x1-90)*(x1-90))";
+	std::string expression = "x0+x1";
 	//std::vector<double> w;
 	for (size_t i = 0; i < sizeof(_f) / sizeof(_f[0]); i++) for (size_t j = 0; j <= n; j++) f.push_back(_f[i][j]);
 	//for (size_t i = 0; i < sizeof(_w) / sizeof(_w[0]); i++) for (size_t j = 0; j <= n; j++) w.push_back(_w[i][j]);
@@ -326,6 +361,7 @@ int main(int argc, char* argv[])
 		//		else if(strcmp(argv[i],"-n")==0) n = atoi(argv[++i]);
 		else if (strcmp(argv[i], "-e") == 0) e = atof(argv[++i]);
 		else if (strcmp(argv[i], "-c") == 0) count = atoi(argv[++i]);
+		else if (strcmp(argv[i], "-t") == 0) expression = string(argv[++i]);
 		else if (strcmp(argv[i], "-m") == 0)
 		{
 			std::istringstream ss(argv[++i]);
@@ -366,29 +402,60 @@ int main(int argc, char* argv[])
 			std::vector<double> x;
 			std::vector<size_t> y;
 			std::getline(lineStream, id, ' ');
-			while (std::getline(lineStream, cell, ' '))
+			if (id[0] == 'N')
 			{
-				x.push_back(stod(cell));
-				y.push_back(stoi(cell));
+				std::getline(lineStream, cell, ' ');
+				n = stoi(cell);
 			}
-			if (id[0] == 'N') n = stoi(cell);
-			if (id[0] == 'E') e = stod(cell);
-			if (id[0] == 'M') m = y;
-			if (id[0] == 'A') a = x;
-			if (id[0] == 'B') b = x;
-			if (id[0] == 'F') for (size_t i = 0; i < x.size(); i++) f.push_back(x[i]);
+			if (id[0] == 'E')
+			{
+				std::getline(lineStream, cell, ' ');
+				e = stod(cell);
+			}
+			if (id[0] == 'M')
+			{
+				while (std::getline(lineStream, cell, ' '))
+				{
+					y.push_back(stoi(cell));
+				}
+				m = y;
+			}
+			if (id[0] == 'A')
+			{
+				while (std::getline(lineStream, cell, ' '))
+				{
+					x.push_back(stod(cell));
+				}
+				a = x;
+			}
+			if (id[0] == 'B')
+			{
+				while (std::getline(lineStream, cell, ' '))
+				{
+					x.push_back(stod(cell));
+				}
+				b = x;
+			}
+			if (id[0] == 'F')
+			{
+				while (std::getline(lineStream, cell, ' '))
+				{
+					x.push_back(stod(cell));
+				}
+				for (size_t i = 0; i < x.size(); i++) f.push_back(x[i]);
+			}
 			//if (id[0] == 'W') for (size_t i = 0; i < x.size(); i++) w.push_back(x[i]);
 			if (id[0] == 'T')
 			{
-				std::size_t pos = line.find("T");
-				expression = line.substr(pos + 2);
+				expression = line.substr(2);
 			}
 		}
 	}
 
 	if (ask_mode == ASK)
 	{
-		std::cout << "¬ведите размерность пространства:"<< std::endl; std::cin >> n;
+		std::cout << "¬ведите размерность пространства:" << std::endl;
+		std::cin >> n;
 		std::cout << "¬ведите искомую функцию " << n << " переменных:" << std::endl;
 		std::getline(std::cin, expression);
 
@@ -496,8 +563,8 @@ int main(int argc, char* argv[])
 						}
 					}
 				for (auto it = std::find(bools.begin(), bools.end(), true);
-					it < bools.end();
-					it = std::find(it, bools.end(), true))
+				     it < bools.end();
+				     it = std::find(it, bools.end(), true))
 				{
 					size_t i = std::distance(bools.begin(), it++);
 					if (doubles[i] > y) continue;
@@ -549,14 +616,14 @@ int main(int argc, char* argv[])
 					assert(std::accumulate(bools.begin(), bools.end(), false, or_functor));
 
 					for (auto it = std::find(bools.begin(), bools.end(), true);
-						it < bools.end();
-						it = std::find(it, bools.end(), true))
+					     it < bools.end();
+					     it = std::find(it, bools.end(), true))
 					{
 						size_t i = std::distance(bools.begin(), it++);
 						if (doubles[i] > y) continue;
-							x[k] = (ak * (mk - i) + bk * i) / mk;
-							y = doubles[i];
-						}
+						x[k] = (ak * (mk - i) + bk * i) / mk;
+						y = doubles[i];
+					}
 					if (trace_mode == TRACE && count == 1) for (size_t i = 0; i < x.size(); i++) std::cout << x[i] << " ";
 					if (trace_mode == TRACE && count == 1) std::cout << "-> " << y << std::endl;
 					double dd = std::max(ak - bk, bk - ak);

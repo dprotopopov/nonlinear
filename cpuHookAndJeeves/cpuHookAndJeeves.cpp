@@ -342,6 +342,7 @@ int main(int argc, char* argv[])
 		//		else if(strcmp(argv[i],"-n")==0) n = atoi(argv[++i]);
 		else if (strcmp(argv[i], "-e") == 0) e = atof(argv[++i]);
 		else if (strcmp(argv[i], "-c") == 0) count = atoi(argv[++i]);
+		else if (strcmp(argv[i], "-t") == 0) expression = string(argv[++i]);
 		else if (strcmp(argv[i], "-md") == 0) md = atoi(argv[++i]);
 		else if (strcmp(argv[i], "-m") == 0)
 		{
@@ -383,23 +384,57 @@ int main(int argc, char* argv[])
 			std::vector<double> x;
 			std::vector<size_t> y;
 			std::getline(lineStream, id, ' ');
-			while (std::getline(lineStream, cell, ' '))
+			if (id[0] == 'N')
 			{
-				x.push_back(stod(cell));
-				y.push_back(stoi(cell));
+				std::getline(lineStream, cell, ' ');
+				n = stoi(cell);
 			}
-			if (id[0] == 'N') n = stoi(cell);
-			if (id[0] == 'D') md = stoi(cell);
-			if (id[0] == 'E') e = stod(cell);
-			if (id[0] == 'M') m = y;
-			if (id[0] == 'A') a = x;
-			if (id[0] == 'B') b = x;
-			if (id[0] == 'F') for (size_t i = 0; i < x.size(); i++) f.push_back(x[i]);
+			if (id[0] == 'D')
+			{
+				std::getline(lineStream, cell, ' ');
+				md = stoi(cell);
+			}
+			if (id[0] == 'E')
+			{
+				std::getline(lineStream, cell, ' ');
+				e = stod(cell);
+			}
+			if (id[0] == 'M')
+			{
+				while (std::getline(lineStream, cell, ' '))
+				{
+					y.push_back(stoi(cell));
+				}
+				m = y;
+			}
+			if (id[0] == 'A')
+			{
+				while (std::getline(lineStream, cell, ' '))
+				{
+					x.push_back(stod(cell));
+				}
+				a = x;
+			}
+			if (id[0] == 'B')
+			{
+				while (std::getline(lineStream, cell, ' '))
+				{
+					x.push_back(stod(cell));
+				}
+				b = x;
+			}
+			if (id[0] == 'F')
+			{
+				while (std::getline(lineStream, cell, ' '))
+				{
+					x.push_back(stod(cell));
+				}
+				for (size_t i = 0; i < x.size(); i++) f.push_back(x[i]);
+			}
 			//if (id[0] == 'W') for (size_t i = 0; i < x.size(); i++) w.push_back(x[i]);
 			if (id[0] == 'T')
 			{
-				std::size_t pos = line.find("T");
-				expression = line.substr(pos + 2);
+				expression = line.substr(2);
 			}
 		}
 	}

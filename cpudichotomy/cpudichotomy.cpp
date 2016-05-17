@@ -20,9 +20,11 @@
 using namespace std;
 
 // http://stackoverflow.com/questions/1494399/how-do-i-search-find-and-replace-in-a-standard-string
-void replace_all(std::string& str, const std::string& oldStr, const std::string& newStr){
+void replace_all(std::string& str, const std::string& oldStr, const std::string& newStr)
+{
 	size_t pos = 0;
-	while ((pos = str.find(oldStr, pos)) != std::string::npos){
+	while ((pos = str.find(oldStr, pos)) != std::string::npos)
+	{
 		str.replace(pos, oldStr.length(), newStr);
 		pos += newStr.length();
 	}
@@ -30,9 +32,8 @@ void replace_all(std::string& str, const std::string& oldStr, const std::string&
 
 
 // https://habrahabr.ru/post/216449/
-double calculate(const char * argv, double *x, int n)
+double calculate(const char* argv, double* x, int n)
 {
-
 	string expression(argv);
 	for (int i = n; i-- > 0;)
 	{
@@ -46,24 +47,58 @@ double calculate(const char * argv, double *x, int n)
 		replace_all(expression, xi, vi);
 	}
 
-	stack<double> s;  stack< pair<int, char> > ops;
+	stack<double> s;
+	stack<pair<int, char>> ops;
 
 	auto p = [&s, &ops](function<double(double, double)>& f)
-	{double r = s.top(); s.pop(); r = f(s.top(), r); s.pop(); s.push(r); ops.pop(); };
+		{
+			double r = s.top();
+			s.pop();
+			r = f(s.top(), r);
+			s.pop();
+			s.push(r);
+			ops.pop();
+		};
 
-	map< char, pair< int, function<double(double, double)> > > m =
-	{ { '+', { 1, [](double a, double b){return a + b; } } }, { '-', { 1, [](double a, double b){return a - b; } } },
-	{ '*', { 2, [](double a, double b){return a*b; } } }, { '/', { 2, [](double a, double b){return a / b; } } } };
+	map<char, pair<int, function<double(double, double)>>> m =
+		{{'+',{1, [](double a, double b)
+				{
+					return a + b;
+				}}},{'-',{1, [](double a, double b)
+				{
+					return a - b;
+				}}},
+			{'*',{2, [](double a, double b)
+				{
+					return a * b;
+				}}},{'/',{2, [](double a, double b)
+				{
+					return a / b;
+				}}}};
 
-	const int order = 2; int level = 0;
-	for (char* sp = (char*)expression.c_str();; ++sp) {
-		while (*sp == '(') { level += order; ++sp; }
+	const int order = 2;
+	int level = 0;
+	for (char* sp = (char*)expression.c_str();; ++sp)
+	{
+		while (*sp == '(')
+		{
+			level += order;
+			++sp;
+		}
 
 		s.push(strtod(sp, &sp));
 
-		while (*sp == ')') { level -= order; ++sp; }
+		while (*sp == ')')
+		{
+			level -= order;
+			++sp;
+		}
 
-		if (!*sp) { while (!ops.empty()) p(m[ops.top().second].second); break; }
+		if (!*sp)
+		{
+			while (!ops.empty()) p(m[ops.top().second].second);
+			break;
+		}
 
 		const int op = m[*sp].first + level;
 		while (!ops.empty() && ops.top().first >= op) p(m[ops.top().second].second);
@@ -318,9 +353,10 @@ int main(int argc, char* argv[])
 		else if (strcmp(argv[i], "-noask") == 0) ask_mode = NOASK;
 		else if (strcmp(argv[i], "-trace") == 0) trace_mode = TRACE;
 		else if (strcmp(argv[i], "-notrace") == 0) trace_mode = NOTRACE;
-		else if(strcmp(argv[i],"-n")==0) n = atoi(argv[++i]);
+		else if (strcmp(argv[i], "-n") == 0) n = atoi(argv[++i]);
 		else if (strcmp(argv[i], "-e") == 0) e = atof(argv[++i]);
 		else if (strcmp(argv[i], "-c") == 0) count = atoi(argv[++i]);
+		else if (strcmp(argv[i], "-t") == 0) expression = string(argv[++i]);
 		else if (strcmp(argv[i], "-m") == 0)
 		{
 			std::istringstream ss(argv[++i]);
@@ -361,30 +397,61 @@ int main(int argc, char* argv[])
 			std::vector<double> x;
 			std::vector<size_t> y;
 			std::getline(lineStream, id, ' ');
-			while (std::getline(lineStream, cell, ' '))
+			if (id[0] == 'N')
 			{
-				x.push_back(stod(cell));
-				y.push_back(stoi(cell));
+				std::getline(lineStream, cell, ' ');
+				n = stoi(cell);
 			}
-			if (id[0] == 'N') n = stoi(cell);
-			if (id[0] == 'E') e = stod(cell);
-			if (id[0] == 'M') m = y;
-			if (id[0] == 'A') a = x;
-			if (id[0] == 'B') b = x;
-			if (id[0] == 'F') for (size_t i = 0; i < x.size(); i++) f.push_back(x[i]);
+			if (id[0] == 'E')
+			{
+				std::getline(lineStream, cell, ' ');
+				e = stod(cell);
+			}
+			if (id[0] == 'M')
+			{
+				while (std::getline(lineStream, cell, ' '))
+				{
+					y.push_back(stoi(cell));
+				}
+				m = y;
+			}
+			if (id[0] == 'A')
+			{
+				while (std::getline(lineStream, cell, ' '))
+				{
+					x.push_back(stod(cell));
+				}
+				a = x;
+			}
+			if (id[0] == 'B')
+			{
+				while (std::getline(lineStream, cell, ' '))
+				{
+					x.push_back(stod(cell));
+				}
+				b = x;
+			}
+			if (id[0] == 'F')
+			{
+				while (std::getline(lineStream, cell, ' '))
+				{
+					x.push_back(stod(cell));
+				}
+				for (size_t i = 0; i < x.size(); i++) f.push_back(x[i]);
+			}
 			//if (id[0] == 'W') for (size_t i = 0; i < x.size(); i++) w.push_back(x[i]);
 			if (id[0] == 'T')
 			{
-				std::size_t pos = line.find("T");
-				expression = line.substr(pos+2);
+				expression = line.substr(2);
 			}
 		}
 	}
 
 	if (ask_mode == ASK)
 	{
-		std::cout << "¬ведите размерность пространства:"<< std::endl; std::cin >> n;
-		std::cout << "¬ведите искомую функцию "<< n <<" переменных:" << std::endl; 
+		std::cout << "¬ведите размерность пространства:" << std::endl;
+		std::cin >> n;
+		std::cout << "¬ведите искомую функцию " << n << " переменных:" << std::endl;
 		std::getline(std::cin, expression);
 
 		std::cout << "¬ведите число сегментов по каждому из измерений m[" << n << "]:" << std::endl;
